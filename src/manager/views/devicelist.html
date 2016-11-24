@@ -1,0 +1,37 @@
+<table class="pure-table">
+    <thead>
+        <tr>
+            <th>Name</th>
+            <th>Last contact</th>
+            <th>Values</th>     
+            <th></th>
+        </tr>
+    </thead>  
+    <tbody>
+    {% for device in devices %}
+       <tr id="{{device.deviceId}}" data-address="{{device.address}}" data-protocol="{{device.protocol}}">
+         <td title="{{device.deviceId}} uses {{device.protocol}} from {{device.address}}">{{device.name}}</td>
+         <td class="last-contact">{{device.lastContact}}</td>
+         <td class="values">
+             {% for value in device.values %}        
+                 <p data-variable="{{value.id}}">
+                     <span class="sensor-label">{{value.label}}</span> 
+                     : 
+                     <strong><span class="sensor-value">{{value.value}}</span></strong>  {%if value.unit %} {%raw value.unit%} {% end %}
+                 </p>
+             {% end %}
+         </td>
+         <td>
+            <a class="pure-button" href="/device/{{device.deviceId}}" style="margin-top: 5px">
+                <i class="fa fa-cog"></i>
+                Details
+            </a>     
+            <a class="pure-button" href="/history?{% raw "&".join("{0}.{1}=on".format(device.deviceId, v.id) for v in device.values) %}" style="margin-top: 5px">
+                <i class="fa fa-area-chart"></i>
+                Charts
+            </a>                  
+         </td>
+       </tr>
+    {% end %}
+    </tbody>
+</table>

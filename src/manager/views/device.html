@@ -1,0 +1,97 @@
+{% extends "base.html" %}
+
+{% block title %} {{device.name}} {% end %}
+
+{% block header %}
+    <h1>IoT Dashboard</h1>  
+{% end %}
+
+{% block content %}
+    <h2>Device {{device.name}}</h2>
+    <table id="{{device.deviceId}}" class="pure-table">
+        <tbody class="values">
+            <tr>
+                <td>ID</td>
+                <td>{{device.deviceId}}</td>
+            </tr>
+            <tr>
+                <td>Name</td>
+                <td>{{device.name}}</td>
+            </tr>                
+            <tr>
+                <td>Status</td>
+                <td class="deviceStatus">{{ "Online" if device.isOnline else "Offline" }}</td>
+            </tr>
+            <tr>
+                <td>Address</td>
+                <td>{{device.address}} ({{device.protocol}})</td>
+            </tr>                
+            <tr>
+                <td>Last contact</td>
+                <td class="last-contact">{{device.lastContact}}</td>
+            </tr>
+           {% for value in device.values %}    
+               <tr data-variable="{{value.id}}">
+                   <td>{{value.label}}</td>
+                   <td><strong><span class="sensor-value">{{value.value}}</span></strong>{%if value.unit %} {%raw value.unit%} {% end %}</td>
+               </tr>
+           {% end %}
+           
+           {%if len(device.commands)>0 %}
+           <tr {% raw "" if device.isOnline else "style='display:none;'" %} class="deviceCommands">
+               <td>Commands</td>
+               <td>
+                   {% for command, conf in device.commands.items() %}  
+                        <a class="pure-button command-button" href="#" data-command="{{command}}" data-deviceId="{{device.deviceId}}" style="margin-top: 5px">
+                            <i class="fa fa-arrow-right"></i>
+                            {{conf["label"]}}
+                        </a>                 
+                   {% end %}
+               </td>
+           </tr>
+           {% end %}
+
+           {%if len(device.images)>0 %}
+           <tr>
+               <td colspan="2">
+                   {% for image in device.images %}                      
+                       <a href="{{image.url}}" target="_blank">
+                           <img src="{{image.url}}" title="Image from {{device.name}} from {{image.date}}" width="320">
+                       </a>           
+                   {% end %}
+                   
+                    <a class="pure-button" href="/device/{{device.deviceId}}?images={{imagesCount+20}}">
+                        <i class="fa fa-plus-square"></i>
+                        More images
+                    </a>   
+               </td>
+           </tr>
+           {% end %}           
+        </tbody>
+    </table>
+    
+    <a class="pure-button" href="/history?{% raw "&".join("{0}.{1}=on".format(device.deviceId, v.id) for v in device.values) %}" style="margin-top:5px">
+        <i class="fa fa-area-chart"></i>
+        Charts
+    </a> 
+{% end %}
+
+{% block extrajs %}
+    <script src="/static/iot.js"></script>    
+	<script>
+      $(function(){
+		  startWebsocket(wsOnMessage);
+          $(".command-button").click(function(e) {
+              e.preventDefault();
+              msg = {};
+              msg.command = $(this).attr("data-command");
+              msg.deviceId = $(this).attr("data-deviceId");
+              msgStr = JSON.stringify(msg);
+              console.log("sending: ",msgStr)
+              ws.send(msgStr);
+              showOkMessage("<p>Command '"+msg.command+"' sent to device.</p>");
+          });
+      });
+    </script>
+{% end %}
+

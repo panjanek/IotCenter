@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Test">
+    <title>IoT {% block title %} {% end %}</title>
+    <link rel="stylesheet" href="/static/pure-min.css">    
+    <link rel="stylesheet" href="/static/boxes.css">
+    <link rel="stylesheet" href="/static/grids-responsive-min.css">    
+    <link rel="stylesheet" href="/static/font-awesome/css/font-awesome.min.css">        
+    <link rel="stylesheet" href="/static/baby-blue.css">   
+    <link rel="stylesheet" href="/static/jquery-ui.min.css">  
+    <script src="/static/jquery-1.8.3-min.js"></script> 
+    <script src="/static/jquery-ui.min.js"></script>    
+    {% block head %} {% end %}              
+</head>
+<body>
+   <div id="layout">   
+        {% include "menu.html" %}
+        <div id="main">        
+            <div class="header">
+                {% block header %} {% end %}                   
+            </div>              
+            <div class="content">
+                {% include "messages.html" %}
+                        
+                {% block content %} {% end %}       
+            </div>                  
+           {% include "footer.html" %}       
+        </div>
+    </div>
+    <script src="/static/shell.js"></script>
+    {% block extrajs %} {% end %}          
+</body>
+</html>

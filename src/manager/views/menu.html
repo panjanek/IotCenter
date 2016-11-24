@@ -1,0 +1,31 @@
+<a href="#menu" id="menuLink" class="menu-link">
+    <span></span>
+</a>
+<div id="menu">
+    <div class="pure-menu">
+        {% if handler.isAuthenticated() %}
+            <a class="pure-menu-heading" href="/">IoT</a>
+            <ul class="pure-menu-list">         
+                <li class="pure-menu-item">
+                    <a href="/" class="pure-menu-link {%if handler.__class__.__name__ == 'HomeWebHandler' %}pure-menu-selected{% end %}">Online</a>
+                </li>                  
+                <li class="pure-menu-item">
+                    <a href="/history" class="pure-menu-link {%if handler.__class__.__name__ == 'HistoryWebHandler' %}pure-menu-selected{% end %}">History</a>  
+                </li>    
+                <li class="pure-menu-item">
+                    <a href="/devices" class="pure-menu-link {%if handler.__class__.__name__ == 'DevicesWebHandler' or handler.__class__.__name__ == 'DeviceWebHandler' %}pure-menu-selected{% end %}">Devices</a>  
+                </li> 
+                <li class="pure-menu-item">
+                    <a href="/logout" class="pure-menu-link">Logout</a>
+                </li> 
+            </ul>        
+        {% else %}
+            <a class="pure-menu-heading" href="/">IoT</a>
+            <ul class="pure-menu-list">         
+                <li class="pure-menu-item">
+                    <a href="#" class="pure-menu-link pure-menu-selected">Login</a>
+                </li> 
+            </ul>                
+        {% end %}
+    </div>
+</div>

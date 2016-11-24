@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %} history {% end %}
+
+{% block head %}
+    <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+    {% if showChart %}
+       <script type="text/javascript">
+            google.charts.load('current', {'packages':['corechart']});
+            google.charts.setOnLoadCallback(drawChart);
+            function drawChart() {
+                var data = google.visualization.arrayToDataTable([
+                  ['Time', {% raw ",".join("'{0} {1}'".format(s.deviceName, s.sensorLabel) for s in chartSensors) %} ],
+                  {% raw ",".join("['{0}', {1}]".format(record["time"], ",".join(str(record.get(s.fullId, {}).get("numberValue", "null")) for s in chartSensors )) for record in chartData) %}
+                ]);    
+                
+                var options = {
+                  title: 'Readings',
+                  
+                  width: 900,
+                  height: 500,
+                  curveType: 'none',
+                  hAxis: { title: 'Time', titleTextStyle: { color: 'red'}, textStyle : {fontSize: 9 } },
+                  vAxes: {0: {logScale: false}, 1: {logScale: false, minValue:0, maxValue:1, title:"ON/OFF"}},
+                  series:{ {% raw ",".join("{0}: {{ targetAxisIndex:{1} }}".format(i, 1 if chartSensors[i].dataType == "bit" else 0) for i in range(len(chartSensors))) %} },
+                  legend: { position: 'bottom' }
+                };
+
+                var chart = new google.visualization.AreaChart(document.getElementById('chart'));
+                chart.draw(data, options);
+            }
+        </script>
+    {% end %}
+{% end %}
+
+{% block header %}
+    <h1>IoT Charts</h1>      
+{% end %}
+
+{% block content %}
+    <h2>Charts</h2>
+    <form action="/history" method="GET" class="pure-form pure-form-aligned">
+        <fieldset>
+            <div class="pure-control-group">
+                <label for="fromTime">From</label>
+                <input id="fromTime" name="fromTime" type="text" value="{{fromTime}}" class="datepicker"/>
+            </div>
+            <div class="pure-control-group">
+                <label for="toTime">To</label>
+                <input id="toTime" name="toTime" type="text" value="{{toTime}}" class="datepicker"/>
+            </div>    
+            <div class="pure-control-group">
+                <label for="aggregation">Aggregation</label>
+                <select id="aggregation" name="aggregation">
+                    <option value="minute" label="Minutes" {%if aggregation == "minute" %}selected="true"{% end %}>Minutes</option>
+                    <option value="hour" label="Hours" {%if aggregation == "hour" %}selected="true"{% end %}>Hours</option>
+                    <option value="day" label="Days" {%if aggregation == "day" %}selected="true"{% end %}>Days</option>
+                </select>
+            </div>              
+            <div class="pure-controls">
+                {% for sensor in sensors %}
+                    <label for="{{sensor.deviceId}}.{{sensor.sensorId}}" class="pure-checkbox">
+                        <input  type="checkbox" name="{{sensor.deviceId}}.{{sensor.sensorId}}" id="{{sensor.deviceId}}.{{sensor.sensorId}}" {%if sensor.selected %}checked{% end %}/>
+                        {{sensor.deviceName}} {{sensor.sensorLabel}}
+                    </label>
+                {% end %}
+                <button type="submit" class="pure-button pure-button-primary">Show</button>
+             </div>            
+        </fieldset>
+    </form>
+    
+    {% if showChart %}
+        {% if len(chartSensors)>0 and len(chartData)>0 %}
+            <div id="chart" style="width: 900px; height: 500px"></div>
+            <br/>
+            <button id="toggleTable" class="pure-button" style="margin-bottom: 5px">Show data table</button>         
+            <table id="chartDataTable" class="pure-table" style="display:none;">
+                <thead>
+                   <tr>
+                        <td>Time</td>
+                        {% for sensor in chartSensors %}
+                            <td>{{sensor.deviceName}} {{sensor.sensorLabel}}</td>
+                        {% end %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for record in chartData %}
+                      <tr>
+                          <td>{{record["time"]}}</td>
+                        {% for sensor in chartSensors %}
+                            <td>
+                                {%if sensor.fullId in record %}  
+                                    {{record[sensor.fullId]["numberValue"]}}
+                                {% else %}
+                                    -
+                                {% end %}
+                            </td>
+                        {% end %}              
+                      </tr>
+                  {% end %}
+                </tbody>
+            </table>   
+        {% else %}
+            <aside><p>No data to show</p></aside>
+        {% end %}
+    {% end %}
+
+{% end %}
+
+{% block extrajs %}
+	<script>   
+      $(function(){
+          $( ".datepicker" ).datepicker({dateFormat : "yy-mm-dd"});
+          $("#toggleTable").toggle(function() {
+                  $(this).text("Hide data table");
+                  $("#chartDataTable").show();
+              }, function() {
+                  $(this).text("Show data table");
+                  $("#chartDataTable").hide();
+            }); 
+      });
+    </script>
+{% end %}
+

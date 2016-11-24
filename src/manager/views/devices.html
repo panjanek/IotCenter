@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+
+{% block title %} devices {% end %}
+
+{% block header %}
+    <h1>IoT Devices</h1>  
+{% end %}
+
+{% block content %}
+    <h2>All IoT Devices</h2>
+    {% include "devicelist.html" %}
+{% end %}
+
+{% block extrajs %}
+    <script src="/static/iot.js"></script>    
+	<script> 
+      $(function(){
+		  startWebsocket(wsOnMessage);
+      });
+    </script>
+{% end %}
+
+

@@ -89,7 +89,8 @@ ENV/
 .ropeproject
 
 #Sensitive configuration files, data and db
-.conf
-.db
-.pem
-.dat
+*.conf
+*.db
+*.pem
+*.dat
+*.srl

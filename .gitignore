@@ -88,5 +88,8 @@ ENV/
 # Rope project settings
 .ropeproject
 
-#Sensitive configuration files
+#Sensitive configuration files, data and db
 .conf
+.db
+.pem
+.dat

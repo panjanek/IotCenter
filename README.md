@@ -21,3 +21,11 @@ This project aims for creating simple, manageble and portable server application
  - server presents the readings in web GUI
  - web GUI supports sending commands to specific device
  - pluggable device script device/app.py handles commands
+ 
+### Features
+ - server-device communication by SSL TCP socket (for linux devices)
+ - alternative communication by encrypted UDP packets (for microcontrollers)
+ - customizable device part: sensor reading part and command handling in form of python script
+ - WWW UI based on pure css and WebSockets
+ - Sensor reports as google charts
+ - For linux devices support for SSH tunnel command for o=logging by SSH into device behind NAT or 3G

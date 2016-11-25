@@ -4,6 +4,8 @@ Simple, lightweight, python-based management service for IoT devices for makers 
 
 Work in progress...
 
+## About this project
+
 ### Motivation
 
 When creating hobby IoT projects based on linux embeded platforms (like Raspberry PI, Onion, Arietta, CHIP, ...) or microcontroller platform (like Arduino, esp2866, Photon, ...) sooner or later one have to use some kind of management service to collect data from sensors and send commands to devices. If the devices are placed in remote locations, behind NAT or 3G network, the task of establishing reliable and secure two-way link between the device and management server is not trivial. 
@@ -29,3 +31,11 @@ This project aims for creating simple, manageble and portable server application
  - WWW UI based on pure css and WebSockets
  - Sensor reports as google charts
  - For linux devices support for SSH tunnel command for o=logging by SSH into device behind NAT or 3G
+
+### TODO / Roadmap
+ - device implementation for Arduino using encrypted UDP communication
+ - external display support for server side script
+ 
+ ## Usage
+ 
+ TODO

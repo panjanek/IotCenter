@@ -19,7 +19,7 @@ This project aims for creating simple, manageble and portable server application
  - client.py script runs as daemon on a device and connects to configured server SSL endpoint
  - once the link is established, server lists the device in web GUI
  - device sends readings to the server
- - server presents the readings in web GUI
+ - server saves the readings in sqline and presents the reports in web GUI
  - web GUI supports sending commands to specific device
  - pluggable device script device/app.py handles commands
  

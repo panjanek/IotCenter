@@ -12,7 +12,7 @@ When creating hobby IoT projects based on linux embeded platforms (like [Raspber
 
 Existing IoT clouds are great, but are usually dedicated to specific device brand (like Photon) or big and feature rich or SaaS, which makes them difficult (or impossible) to install and configure on one's own hardware.
 
-This project aims for creating simple, manageble and portable server application for collecting data from devices and sending commands to devices. The application is written in python and can be run as a daemon on any linux system, for example Raspberry Pi. Second part of the project is the device part in form of client python script that runs as a daemon on the device side and is responsible for establishing secure socket link to the server, authenticating and handling communication. In order to read data from sensors or handle custom commands from the server one havr to implement few lines of customized python code.
+This project aims for creating simple, manageble and portable server application for collecting data from various brands and types of devices and sending commands to the devices. The application is written in python and can be run as a daemon on any linux system, for example Raspberry Pi. Second part of the project is the device part in form of client python script that runs as a daemon on the device side and is responsible for establishing secure socket link to the server, authenticating and handling communication. In order to read data from sensors or handle custom commands from the server one havr to implement few lines of customized python code.
 
 ### How it works
  - server.py script runs as daemon and exposes SSL endpoint for devices to connect

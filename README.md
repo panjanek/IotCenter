@@ -8,7 +8,7 @@ Work in progress...
 
 ### Motivation
 
-When creating hobby IoT projects based on linux embeded platforms (like Raspberry PI, Onion, Arietta, CHIP, ...) or microcontroller platform (like Arduino, esp2866, Photon, ...) sooner or later one have to use some kind of management service to collect data from sensors and send commands to devices. If the devices are placed in remote locations, behind NAT or 3G network, the task of establishing reliable and secure two-way link between the device and management server is not trivial. 
+When creating hobby IoT projects based on linux embeded platforms (like [Raspberry Pi](https://www.raspberrypi.org/), Onion, Arietta, CHIP, ...) or microcontroller platform (like Arduino, esp2866, Photon, ...) sooner or later one have to use some kind of management service to collect data from sensors and send commands to devices. If the devices are placed in remote locations, behind NAT or 3G network, the task of establishing reliable and secure two-way link between the device and management server is not trivial. 
 
 Existing IoT clouds are great, but are usually dedicated to specific device brand (like Photon) or big and feature rich or SaaS, which makes them difficult (or impossible) to install and configure on one's own hardware.
 

@@ -8,7 +8,7 @@ Work in progress...
 
 ### Motivation
 
-When creating hobby IoT projects based on linux embeded platforms (like [Raspberry Pi](https://www.raspberrypi.org/), [Onion](https://onion.io/), [Arietta](http://www.acmesystems.it/arietta), [CHIP](https://getchip.com/), ...) or microcontroller platform (like Arduino, esp2866, Photon, ...) sooner or later one have to use some kind of management service to collect data from sensors and send commands to devices. If the devices are placed in remote locations, behind NAT or 3G network, the task of establishing reliable and secure two-way link between the device and management server is not trivial. 
+When creating hobby IoT projects based on linux embeded platforms (like [Raspberry Pi](https://www.raspberrypi.org/), [Onion](https://onion.io/), [Arietta](http://www.acmesystems.it/arietta), [CHIP](https://getchip.com/), ...) or microcontroller platform (like [Arduino](https://www.arduino.cc/), [esp2866](http://www.esp8266.com/), [Photon](https://www.particle.io/), ...) sooner or later one have to use some kind of management service to collect data from sensors and send commands to devices. If the devices are placed in remote locations, behind NAT or 3G network, the task of establishing reliable and secure two-way link between the device and management server is not trivial. 
 
 Existing IoT clouds are great, but are usually dedicated to specific device brand (like Photon) or big and feature rich or SaaS, which makes them difficult (or impossible) to install and configure on one's own hardware.
 
@@ -27,7 +27,7 @@ This project aims for creating simple, manageble and portable server application
  - server-device communication by SSL TCP socket (for linux devices). Secure communication with two way certificate authentication
  - alternative communication by encrypted UDP packets (for microcontrollers). Secure communication with SHA256 encryption and HMAC-SHA256 authentication.
  - customizable device part: sensor reading part and command handling in form of python script
- - WWW UI based on pure css, tornado and WebSockets
+ - WWW UI based on pure css, [tornado](http://www.tornadoweb.org/en/stable/) and WebSockets
  - Sensor readings storing in sqlite
  - Sensor readings reports as google charts
  - For linux devices support for SSH tunnel command for logging by SSH into the device behind NAT or 3G

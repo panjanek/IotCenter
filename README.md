@@ -34,8 +34,8 @@ This project aims for creating simple, manageble and portable server application
  - Customization by writing plugins in python
 
 ### TODO / Roadmap
- - device implementation for Arduino using encrypted UDP communication
- - external display support for server side script
+ - implement client for Arduino using encrypted UDP communication
+ - add external display support for server side script to use on Raspbery Pi with small [LCD screen](http://www.waveshare.com/3.5inch-rpi-lcd-a.htm)
 
 ## Usage
  

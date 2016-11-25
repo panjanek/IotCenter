@@ -35,7 +35,8 @@ This project aims for creating simple, manageble and portable server application
 ### TODO / Roadmap
  - device implementation for Arduino using encrypted UDP communication
  - external display support for server side script
- 
- ## Usage
+
+
+## Usage
  
  TODO

@@ -14,7 +14,6 @@ Existing IoT clouds are great, but are usually dedicated to specific device bran
 
 This project aims for creating simple, manageble and portable server application for collecting data from devices and sending commands to devices. The application is written in python and can be run as a daemon on any linux system, for example Raspberry Pi. Second part of the project is the device part in form of client python script that runs as a daemon on the device side and is responsible for establishing secure socket link to the server, authenticating and handling communication. In order to read data from sensors or handle custom commands from the server one havr to implement few lines of customized python code.
 
-
 ### How it works
  - server.py script runs as daemon and exposes SSL endpoint for devices to connect
  - client.py script runs as daemon on a device and connects to configured server SSL endpoint
@@ -29,7 +28,8 @@ This project aims for creating simple, manageble and portable server application
  - alternative communication by encrypted UDP packets (for microcontrollers). Secure communication with SHA256 encryption and HMAC-SHA256 authentication.
  - customizable device part: sensor reading part and command handling in form of python script
  - WWW UI based on pure css, tornado and WebSockets
- - Sensor reports as google charts
+ - Sensor readings storing in sqlite
+ - Sensor readings reports as google charts
  - For linux devices support for SSH tunnel command for logging by SSH into the device behind NAT or 3G
 
 ### TODO / Roadmap

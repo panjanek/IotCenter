@@ -27,7 +27,7 @@ This project aims for creating simple, manageble and portable server application
  - server-device communication by SSL TCP socket (for linux devices). Secure communication with two way certificate authentication
  - alternative communication by encrypted UDP packets (for microcontrollers). Secure communication with SHA256 encryption and HMAC-SHA256 authentication.
  - customizable device part: sensor reading part and command handling in form of python script
- - WWW UI based on pure css, [tornado](http://www.tornadoweb.org/en/stable/) and WebSockets
+ - WWW UI based on [Pure.css](http://purecss.io/), [tornado](http://www.tornadoweb.org/en/stable/) and WebSockets
  - Sensor readings storing in sqlite
  - Sensor readings reports as google charts
  - For linux devices support for SSH tunnel command for logging by SSH into the device behind NAT or 3G

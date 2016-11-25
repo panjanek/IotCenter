@@ -28,8 +28,8 @@ This project aims for creating simple, manageble and portable server application
  - alternative communication by encrypted UDP packets (for microcontrollers). Secure communication with SHA256 encryption and HMAC-SHA256 authentication.
  - customizable device part: sensor reading part and command handling in form of python script
  - WWW UI based on [Pure.css](http://purecss.io/), [tornado](http://www.tornadoweb.org/en/stable/) and WebSockets
- - Sensor readings storing in sqlite
- - Sensor readings reports as google charts
+ - Sensor readings storing using [sqlite](https://sqlite.org/)
+ - Sensor readings reports using [Google Charts](https://developers.google.com/chart/)
  - For linux devices support for SSH tunnel command for logging by SSH into the device behind NAT or 3G
  - Customization by writing plugins in python
 

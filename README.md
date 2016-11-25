@@ -38,5 +38,14 @@ This project aims for creating simple, manageble and portable server application
  - add external display support for server side script to use on Raspbery Pi with small [LCD screen](http://www.waveshare.com/3.5inch-rpi-lcd-a.htm)
 
 ## Usage
- 
- TODO
+
+TODO
+
+1. Install dependencies: tornado, sqlite, ...
+2. Download IotCenter scripts
+3. Setup initial server configuration: python server.py init
+4. Create device configuration: python server.py newdevice
+5. Run the server: python server.py start
+6. Copy configuration to device and run device client daemon: python client.py start
+
+

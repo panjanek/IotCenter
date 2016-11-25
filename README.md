@@ -25,17 +25,16 @@ This project aims for creating simple, manageble and portable server application
  - pluggable device script device/app.py handles commands
  
 ### Features
- - server-device communication by SSL TCP socket (for linux devices)
- - alternative communication by encrypted UDP packets (for microcontrollers)
+ - server-device communication by SSL TCP socket (for linux devices). Secure communication with two way certificate authentication
+ - alternative communication by encrypted UDP packets (for microcontrollers). Secure communication with SHA256 encryption and HMAC-SHA256 authentication.
  - customizable device part: sensor reading part and command handling in form of python script
- - WWW UI based on pure css and WebSockets
+ - WWW UI based on pure css, tornado and WebSockets
  - Sensor reports as google charts
- - For linux devices support for SSH tunnel command for o=logging by SSH into device behind NAT or 3G
+ - For linux devices support for SSH tunnel command for logging by SSH into the device behind NAT or 3G
 
 ### TODO / Roadmap
  - device implementation for Arduino using encrypted UDP communication
  - external display support for server side script
-
 
 ## Usage
  

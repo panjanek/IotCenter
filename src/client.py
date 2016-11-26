@@ -8,6 +8,7 @@ import ConfigParser
 import os
 import argparse
 import importlib
+import time
 
 if __name__ == "__main__":
     confFile = getFullPath('conf/client.conf')    
@@ -25,18 +26,24 @@ if __name__ == "__main__":
     logLevel = logging.getLevelName(config.get('log', 'logLevel'))
     deviceId = buffer(bytearray.fromhex(config.get('client', 'deviceId')))
     deviceKey = buffer(bytearray.fromhex(config.get('client', 'deviceKey')))    
-    serverAddr = domainToIp(config.get('client', 'serverAddr'))
-    protocol = config.get('client', 'protocol')
-    pidFile = getFullPath(config.get('client', 'pidFile'))    
     if not deviceId or not deviceKey:
         print("deviceId or deviceKey missing in file {0}. Use 'python server.py newdevice' command on your server in order to get deviceId,deviceKey pair".format(confFile))
-        exit()    
-
+        exit()  
+        
     logFile = config.get('log', 'logFile')
     if logFile:
         logFile = getFullPath(logFile)
     configureLogging(logLevel, config.get('log', 'logToConsole'), logFile)
-    logger = logging.getLogger() 
+    logger = logging.getLogger()     
+    serverAddr = None
+    while not serverAddr:
+        try:
+            serverAddr = domainToIp(config.get('client', 'serverAddr'))
+        except Exception as e: 
+            logger.exception(e)
+            time.sleep(5)
+    protocol = config.get('client', 'protocol')
+    pidFile = getFullPath(config.get('client', 'pidFile'))   
     deviceHandlerConf = config.get('client', 'deviceHandler')  
     handlerPath = ".".join(deviceHandlerConf.split('.')[:-1])
     handlerClassName = deviceHandlerConf.split('.')[-1]    

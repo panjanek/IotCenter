@@ -62,10 +62,14 @@ if __name__ == "__main__":
             serverConf += 'stateFile = {0}\n'.format(os.path.join(confDir, 'server.dat'))
             serverConf += 'udpListenAddr = 0.0.0.0:9999\n\n'
             serverConf += '[web]\n'
-            serverConf += 'webListenPort = 8888\n'
+            serverConf += 'httpsPort = 443\n'
+            serverConf += 'httpPort = 80\n'
             serverConf += 'adminPasswordHash = {0}\n'.format(adminPasswordHash)
             serverConf += 'uploadDir = /tmp/iot-uploads\n'
-            serverConf += 'dbFile = {0}\n\n'.format(os.path.join(confDir, 'iot.db'))
+            serverConf += 'dbFile = {0}\n'.format(os.path.join(confDir, 'iot.db'))
+            serverConf += 'httpsCertFile = ' + serverCertFile + '\n'
+            serverConf += 'httpsKeyFile = ' + serverKeyFile + '\n'    
+            serverConf += 'httpsChainFile = \n\n'            
             serverConf += '[log]\n'                
             serverConf += 'logLevel = DEBUG\n'
             serverConf += 'logToConsole = True\n'

@@ -31,6 +31,7 @@ class IotManager:
         self.dbFile = self.config.get('web', 'dbFile')
         self.httpsCertFile = self.config.get('web', 'httpsCertFile')
         self.httpsKeyFile = self.config.get('web', 'httpsKeyFile')
+        self.httpsChainFile = self.config.get('web', 'httpsChainFile')
         dir = os.path.dirname(os.path.realpath(sys.argv[0]))        
         self.database = database.Database(self.dbFile)
         self.deviceConfig = dict()
@@ -66,7 +67,7 @@ class IotManager:
         self.webServer.websocketSend(model.toJSON())
         
     def startWebServer(self):
-        self.webServer = web.WebServer(self.service, self.deviceConfig, self, self.httpsPort, self.httpPort, self.uploadDir, self.adminPasswordHash, self.httpsCertFile, self.httpsKeyFile)
+        self.webServer = web.WebServer(self.service, self.deviceConfig, self, self.httpsPort, self.httpPort, self.uploadDir, self.adminPasswordHash, self.httpsCertFile, self.httpsKeyFile, self.httpsChainFile)
         self.webServer.start()
         
     def getDeviceFolder(self, deviceId, folder):

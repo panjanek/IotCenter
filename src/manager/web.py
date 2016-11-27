@@ -12,11 +12,12 @@ from models import DeviceModel
 from models import SensorValue
 from models import UploadedImage
 from models import SensorFilter
+import ssl
 
 class WebServer:
     logger = logging.getLogger()
     
-    def __init__(self, service, deviceConfig, iotManager, httpsPort, httpPort, uploadDir, adminPasswordHash, httpsCertFile, httpsKeyFile):
+    def __init__(self, service, deviceConfig, iotManager, httpsPort, httpPort, uploadDir, adminPasswordHash, httpsCertFile, httpsKeyFile, httpsChainFile):
         self.service = service
         self.deviceConfig = deviceConfig
         self.iotManager = iotManager
@@ -26,6 +27,7 @@ class WebServer:
         self.adminPasswordHash = adminPasswordHash
         self.httpsCertFile = httpsCertFile
         self.httpsKeyFile = httpsKeyFile
+        self.httpsChainFile = httpsChainFile
         self.httpsApp = None
         
     def start(self):
@@ -49,7 +51,11 @@ class WebServer:
         
         self.logger.info("starting web server listening at http {0} (plain)".format(self.httpPort))
         self.httpsApp = tornado.web.Application(application, cookie_secret=os.urandom(32), compiled_template_cache=True)
-        self.httpsServer = tornado.httpserver.HTTPServer(self.httpsApp, ssl_options={ "certfile": self.httpsCertFile, "keyfile": self.httpsKeyFile })
+        sslOptions={ "certfile": self.httpsCertFile, "keyfile": self.httpsKeyFile }
+        if self.httpsChainFile:
+            sslOptions["ca_certs"] = self.httpsChainFile
+            self.logger.info("Using certificate full chain at {0}".format(self.httpsChainFile))
+        self.httpsServer = tornado.httpserver.HTTPServer(self.httpsApp, ssl_options=sslOptions)
         self.httpsServer.listen(self.httpsPort)
         
         httpApplication = [

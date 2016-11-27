@@ -16,17 +16,20 @@ from models import SensorFilter
 class WebServer:
     logger = logging.getLogger()
     
-    def __init__(self, service, deviceConfig, iotManager, port, uploadDir, adminPasswordHash):
+    def __init__(self, service, deviceConfig, iotManager, httpsPort, httpPort, uploadDir, adminPasswordHash, httpsCertFile, httpsKeyFile):
         self.service = service
         self.deviceConfig = deviceConfig
         self.iotManager = iotManager
-        self.port = port
+        self.httpsPort = httpsPort
+        self.httpPort = httpPort
         self.uploadDir = uploadDir
         self.adminPasswordHash = adminPasswordHash
-        self.app = None
+        self.httpsCertFile = httpsCertFile
+        self.httpsKeyFile = httpsKeyFile
+        self.httpsApp = None
         
     def start(self):
-        self.logger.info("starting web server listening at port {0} with SSL certificate at {1}".format(self.port, self.iotManager.service.serverCertFile))
+        self.logger.info("starting web server listening at https {0} with SSL certificate at {1}".format(self.httpsPort, self.httpsCertFile))
         dir = os.path.dirname(os.path.realpath(__file__))
         handlersArgs = dict(service=self.service, deviceConfig=self.deviceConfig, iotManager=self.iotManager)
         
@@ -44,9 +47,20 @@ class WebServer:
         (r'/', handlers.HomeWebHandler, handlersArgs),
         ]
         
-        self.app = tornado.web.Application(application, cookie_secret=os.urandom(32), compiled_template_cache=True)
-        self.httpServer = tornado.httpserver.HTTPServer(self.app, ssl_options={ "certfile": self.iotManager.service.serverCertFile, "keyfile": self.iotManager.service.serverKeyFile })
-        self.httpServer.listen(self.port)
+        self.logger.info("starting web server listening at http {0} (plain)".format(self.httpPort))
+        self.httpsApp = tornado.web.Application(application, cookie_secret=os.urandom(32), compiled_template_cache=True)
+        self.httpsServer = tornado.httpserver.HTTPServer(self.httpsApp, ssl_options={ "certfile": self.httpsCertFile, "keyfile": self.httpsKeyFile })
+        self.httpsServer.listen(self.httpsPort)
+        
+        httpApplication = [
+            (r'/', handlers.RedirectorHandler, dict(manager = self)),
+            (r'/(.*)', tornado.web.StaticFileHandler, {'path': dir + '/plain' })
+        ]
+
+        self.httpApp = tornado.web.Application(httpApplication)
+        self.httpServer = tornado.httpserver.HTTPServer(self.httpApp)
+        self.httpServer.listen(self.httpPort)        
+        
         tornado.ioloop.IOLoop.current().start()    
         
     def websocketSend(self, payload):

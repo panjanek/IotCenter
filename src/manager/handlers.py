@@ -12,6 +12,19 @@ from models import SensorValue
 from models import UploadedImage
 from models import SensorFilter
 
+
+class RedirectorHandler(tornado.web.RequestHandler):
+    def initialize(self, manager):
+        self.manager = manager
+        
+    def get(self):
+        host = self.request.host
+        host = host.split(':')[0]
+        if self.manager.httpsPort != 443:
+            host += ":{0}".format(self.manager.httpsPort)
+        redirectTo = "https://{0}".format(host)        
+        self.redirect(redirectTo)
+
 class BaseWebHandler(tornado.web.RequestHandler):
   def isAuthenticated(self):
     user = self.get_secure_cookie("user")

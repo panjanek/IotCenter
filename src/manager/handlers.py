@@ -202,7 +202,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
                 cmdConf = self.iotManager.deviceConfig[parsed["deviceId"]]["commands"][parsed["command"]]
                 payload = {}
                 for attr, val in cmdConf.items():
-                    if attr != "label":
+                    if attr != "label" and attr != "icon" and attr != "confirm":
                         payload[attr] = val
                 payloadStr = json.dumps(payload)
                 deviceIdHex = parsed["deviceId"]

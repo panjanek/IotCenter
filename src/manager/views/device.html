@@ -42,8 +42,8 @@
                <td>Commands</td>
                <td>
                    {% for command, conf in device.commands.items() %}  
-                        <a class="pure-button command-button" href="#" data-command="{{command}}" data-deviceId="{{device.deviceId}}" style="margin-top: 5px">
-                            <i class="fa fa-arrow-right"></i>
+                        <a class="pure-button command-button" href="#" data-command="{{command}}" data-deviceId="{{device.deviceId}}" style="margin-top: 5px" data-confirm="{{ conf.get("confirm", False) }}">
+                            <i class="fa {{ "fa-{0}".format(conf.get("icon", "arrow-right")) }}"></i>
                             {{conf["label"]}}
                         </a>                 
                    {% end %}
@@ -74,6 +74,11 @@
         <i class="fa fa-area-chart"></i>
         Charts
     </a> 
+    
+    <div id="dialog-confirm" title="Send this command?" style="display:none;">
+      <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Are you sure you want to send "<span id="commandConfirm"></span>"?</p>
+    </div>
+    
 {% end %}
 
 {% block extrajs %}
@@ -83,15 +88,42 @@
 		  startWebsocket(wsOnMessage);
           $(".command-button").click(function(e) {
               e.preventDefault();
-              msg = {};
-              msg.command = $(this).attr("data-command");
-              msg.deviceId = $(this).attr("data-deviceId");
-              msgStr = JSON.stringify(msg);
-              console.log("sending: ",msgStr)
-              ws.send(msgStr);
-              showOkMessage("<p>Command '"+msg.command+"' sent to device.</p>");
+              deviceId = $(this).attr("data-deviceId");   
+              command = $(this).attr("data-command");
+              if ($(this).attr("data-confirm") == "True") {
+                    $("#commandConfirm").text(command);
+                    $( "#dialog-confirm" ).dialog({
+                      resizable: false,
+                      height: "auto",
+                      width: 400,
+                      modal: true,
+                      buttons: {
+                        "Send": function() {
+                          $( this ).dialog( "close" );
+                          sendCommand(deviceId, command);
+                        },
+                        Cancel: function() {
+                          $( this ).dialog( "close" );
+                        }
+                      }
+                    });             
+              
+              } else {
+                  sendCommand(deviceId, command);
+              }
           });
       });
+      
+      function sendCommand(deviceId, command) {
+          msg = {};
+          msg.command = command;
+          msg.deviceId = deviceId;
+          msgStr = JSON.stringify(msg);
+          console.log("sending: ",msgStr)
+          ws.send(msgStr);
+          showOkMessage("<p>Command '"+msg.command+"' sent to device.</p>");          
+      }
+
     </script>
 {% end %}
 

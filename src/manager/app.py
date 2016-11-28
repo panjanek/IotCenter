@@ -16,6 +16,7 @@ import datetime
 import database
 import web
 from models import DeviceModel
+from collections import OrderedDict
 
 class IotManager:
     logger = logging.getLogger()
@@ -36,7 +37,7 @@ class IotManager:
         self.database = database.Database(self.dbFile)
         self.deviceConfig = dict()
         for deviceId, jsonConf in dict(self.config.items('devices')).iteritems():
-            self.deviceConfig[deviceId] = json.loads(jsonConf)
+            self.deviceConfig[deviceId] = json.loads(jsonConf, object_pairs_hook=OrderedDict)
         
     def start(self):
         self.logger.info("starting server app handler")

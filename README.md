@@ -16,15 +16,15 @@ This project aims for creating simple, manageble and portable server application
 
 ### How it works
  - server.py script runs as daemon and exposes SSL endpoint for devices to connect
- - client.py script runs as daemon on a device and connects to configured server SSL endpoint
+ - client.py script runs as daemon on a device and connects to configured server TLS endpoint
  - once the link is established, server lists the device in web GUI
  - device sends readings to the server
- - server saves the readings in sqline and presents the reports in web GUI
+ - server saves the readings in sqlite and presents the reports in web GUI
  - web GUI supports sending commands to specific device
- - pluggable device script device/app.py handles commands
+ - pluggable device script device/app.py handles commands on the device part
  
 ### Features
- - server-device communication by SSL TCP socket (for linux devices). Secure communication with two way certificate authentication
+ - server-device communication by TLS TCP socket (for linux devices). Secure communication with two way certificate authentication
  - alternative communication by encrypted UDP packets (for microcontrollers). Secure communication with SHA256 encryption and HMAC-SHA256 authentication.
  - customizable device part: sensor reading part and command handling in form of python script
  - WWW UI based on [Pure.css](http://purecss.io/), [tornado](http://www.tornadoweb.org/en/stable/) and WebSockets

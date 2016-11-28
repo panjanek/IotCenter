@@ -31,7 +31,7 @@ class WebServer:
         self.httpsApp = None
         
     def start(self):
-        self.logger.info("starting web server listening at https {0} with SSL certificate at {1}".format(self.httpsPort, self.httpsCertFile))
+        self.logger.info("starting web server listening at https port {0}".format(self.httpsPort))
         dir = os.path.dirname(os.path.realpath(__file__))
         handlersArgs = dict(service=self.service, deviceConfig=self.deviceConfig, iotManager=self.iotManager)
         
@@ -51,11 +51,10 @@ class WebServer:
         
         self.logger.info("starting web server listening at http {0} (plain)".format(self.httpPort))
         self.httpsApp = tornado.web.Application(application, cookie_secret=os.urandom(32), compiled_template_cache=True)
-        #sslOptions={ "certfile": self.httpsCertFile, "keyfile": self.httpsKeyFile, "ssl_version": ssl.PROTOCOL_TLSv1 }
-        sslOptions={ "certfile": self.httpsChainFile, "keyfile": self.httpsKeyFile, "ssl_version": ssl.PROTOCOL_TLSv1 }
+        sslOptions={ "certfile": self.httpsCertFile, "keyfile": self.httpsKeyFile, "ssl_version": ssl.PROTOCOL_TLSv1 }
         if self.httpsChainFile:
-            sslOptions["ca_certs"] = self.httpsChainFile
-            self.logger.info("Using certificate full chain at {0}".format(self.httpsChainFile))
+            sslOptions["certfile"] = self.httpsChainFile
+        self.logger.info("Using certificate file at {0}".format(sslOptions["certfile"]))
         self.httpsServer = tornado.httpserver.HTTPServer(self.httpsApp, ssl_options=sslOptions)
         self.httpsServer.listen(self.httpsPort)
         

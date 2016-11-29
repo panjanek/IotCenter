@@ -78,6 +78,14 @@
     <div id="dialog-confirm" title="Send this command?" style="display:none;">
       <p><span class="ui-icon ui-icon-alert" style="float:left; margin:12px 12px 20px 0;"></span>Are you sure you want to send "<span id="commandConfirm"></span>"?</p>
     </div>
+
+    <div id="dialog-video" title="Streaming from {{ device.name }}" style="display:none;">
+        <p><iframe src="/video" width="600" height="400"></iframe></p>
+        <a class="pure-button" href="/video" target="_blank">
+            <i class="fa fa-arrow-right"></i>
+            Open stream in separate tab
+        </a>              
+    </div>
     
 {% end %}
 
@@ -107,7 +115,6 @@
                         }
                       }
                     });             
-              
               } else {
                   sendCommand(deviceId, command);
               }
@@ -121,7 +128,18 @@
           msgStr = JSON.stringify(msg);
           console.log("sending: ",msgStr)
           ws.send(msgStr);
-          showOkMessage("<p>Command '"+msg.command+"' sent to device.</p>");          
+          showOkMessage("<p>Command '"+msg.command+"' sent to device.</p>");    
+
+          if (command == "video") {
+              $( "#dialog-video" ).dialog({
+                  modal: true,
+                  height: 480,
+                  width: 640,                  
+                  buttons: {
+                     Ok: function() { $( this ).dialog( "close" );}
+                  } 
+              });
+          }          
       }
 
     </script>

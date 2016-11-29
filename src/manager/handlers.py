@@ -24,14 +24,27 @@ class RedirectorHandler(tornado.web.RequestHandler):
             host += ":{0}".format(self.manager.httpsPort)
         redirectTo = "https://{0}".format(host)        
         self.redirect(redirectTo)
-
+             
 class BaseWebHandler(tornado.web.RequestHandler):
   def isAuthenticated(self):
     user = self.get_secure_cookie("user")
     if user:
         return True
     else:
-        return False        
+        return False  
+        
+class VideoWebHandler(BaseWebHandler):		
+    def get(self):
+        if self.isAuthenticated():
+            self.set_status(200)
+            self.add_header('Content-type','multipart/x-mixed-replace; boundary=--jpgboundary')
+            #TODO read from local http port and write here
+            photoFile = "/home/pi/puszcz.jpg"
+            with open(photoFile, mode='rb') as file:
+                photoData = file.read()
+                self.write(photoData)
+        else:
+            self.redirect("/login?"+urllib.urlencode({"returnUrl":self.request.uri}))
         
 class HomeWebHandler(BaseWebHandler):
     def initialize(self, service, deviceConfig, iotManager):

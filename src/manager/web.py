@@ -46,6 +46,7 @@ class WebServer:
         (r'/device/(.*)', handlers.DeviceWebHandler, handlersArgs),
         (r'/history', handlers.HistoryWebHandler, handlersArgs),
         (r'/devices', handlers.DevicesWebHandler, handlersArgs),
+        (r'/video', handlers.VideoWebHandler),
         (r'/', handlers.HomeWebHandler, handlersArgs),
         ]
         

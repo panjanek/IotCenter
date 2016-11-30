@@ -69,7 +69,8 @@ if __name__ == "__main__":
             serverConf += 'dbFile = {0}\n'.format(os.path.join(confDir, 'iot.db'))
             serverConf += 'httpsCertFile = ' + serverCertFile + '\n'
             serverConf += 'httpsKeyFile = ' + serverKeyFile + '\n'    
-            serverConf += 'httpsChainFile = \n\n'            
+            serverConf += 'httpsChainFile = \n'   
+            serverConf += 'localVideoPort = 8081\n\n'            
             serverConf += '[log]\n'                
             serverConf += 'logLevel = DEBUG\n'
             serverConf += 'logToConsole = True\n'

@@ -80,11 +80,15 @@
     </div>
 
     <div id="dialog-video" title="Streaming from {{ device.name }}" style="display:none;">
-        <p><iframe src="/video" width="600" height="400"></iframe></p>
+        <p><iframe id="videoIframe" width="700" height="500"></iframe></p>
         <a class="pure-button" href="/video" target="_blank">
             <i class="fa fa-arrow-right"></i>
             Open stream in separate tab
-        </a>              
+        </a>         
+        <a id="reloadVideoButton" class="pure-button" href="#">
+            <i class="fa fa-repeat"></i>
+            Reload
+        </a>           
     </div>
     
 {% end %}
@@ -119,6 +123,10 @@
                   sendCommand(deviceId, command);
               }
           });
+          
+            $("#reloadVideoButton").click(function(e) {
+                $("#videoIframe").attr("src", "/video?_t="+new Date().getTime());
+            });
       });
       
       function sendCommand(deviceId, command) {
@@ -130,14 +138,17 @@
           ws.send(msgStr);
           showOkMessage("<p>Command '"+msg.command+"' sent to device.</p>");    
 
-          if (command == "video") {
+          if (command.substring(0, 5) == "video") {
+              setTimeout(function() {$("#videoIframe").attr("src", "/video");}, 5000);
               $( "#dialog-video" ).dialog({
                   modal: true,
-                  height: 480,
-                  width: 640,                  
+                  resizable: false,
+                  height: 720,
+                  width: 760,                  
                   buttons: {
-                     Ok: function() { $( this ).dialog( "close" );}
-                  } 
+                     Close: function() { $( this ).dialog( "close" );   }
+                  },
+                  close: function( event, ui ) { console.log("closing"); $("#videoIframe").removeAttr("src"); sendCommand('{{device.deviceId}}', 'tunnel-close'); }
               });
           }          
       }

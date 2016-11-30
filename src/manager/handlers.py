@@ -7,11 +7,16 @@ import json
 import datetime
 import urllib
 import database
+import socket
+import time
+import threading
+import tornado.web
+from tornado import gen, web, httpclient
+from tornado.gen import Return
 from models import DeviceModel
 from models import SensorValue
 from models import UploadedImage
 from models import SensorFilter
-
 
 class RedirectorHandler(tornado.web.RequestHandler):
     def initialize(self, manager):
@@ -34,17 +39,61 @@ class BaseWebHandler(tornado.web.RequestHandler):
         return False  
         
 class VideoWebHandler(BaseWebHandler):		
+    logger = logging.getLogger()
+    
+    def initialize(self, localVideoPort):
+        self.localVideoPort = localVideoPort
+        
     def get(self):
         if self.isAuthenticated():
+            self.logger.info("Attempting to stream video from 127.0.0.1:{0}".format(self.localVideoPort))
+            self.clear()
             self.set_status(200)
-            self.add_header('Content-type','multipart/x-mixed-replace; boundary=--jpgboundary')
-            #TODO read from local http port and write here
-            photoFile = "/home/pi/puszcz.jpg"
-            with open(photoFile, mode='rb') as file:
-                photoData = file.read()
-                self.write(photoData)
+            self.set_header('Connection', 'close')
+            self.set_header('Max-Age', '0')
+            self.set_header('Expires', '0')
+            self.set_header('Cache-Control', 'no-cache, private')
+            self.set_header('Pragma', 'no-cache')
+            self.set_header('Content-type','multipart/x-mixed-replace; boundary=--BoundaryString')
+            self.flush()  
+            
+            self.sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
+            self.sock.connect(('127.0.0.1', self.localVideoPort))   
+            self.sock.sendall("GET http://127.0.0.1:{0}/ HTTP/1.1\r\nHost: 127.0.0.1:{0}\r\n\r\n".format(self.localVideoPort))
+            
+            #read headers from mjpg stream
+            line = self.readLine()
+            while len(line) > 0:
+                self.logger.debug("header line from video server: {0}".format(line))
+                line = self.readLine()
+            
+            #stream video
+            self.logger.info("Starting serving mjpg stream")
+            self._auto_finish = False;
+            threading.Thread(target = self.streamVideo).start()
         else:
             self.redirect("/login?"+urllib.urlencode({"returnUrl":self.request.uri}))
+   
+    def streamVideo(self):
+        while True:
+            buffer = self.sock.recv(100000)
+            if len(buffer) > 0:
+                self.logger.debug("received {0} bytes of video stream".format(len(buffer)))
+                self.write(buffer)
+                self.set_header('Content-type','Content-type: image/jpeg')              
+                self.flush()    
+            
+    def readLine(self):
+        c1 = None
+        c2 = None
+        line = ""
+        while c1 != '\r' and c2 != '\n':
+            buf = self.sock.recv(1)
+            if len(buf) > 0:
+                c1 = c2
+                c2 = buf[0]
+                line += buf
+        return line[:-2]                
         
 class HomeWebHandler(BaseWebHandler):
     def initialize(self, service, deviceConfig, iotManager):

@@ -17,7 +17,7 @@ import ssl
 class WebServer:
     logger = logging.getLogger()
     
-    def __init__(self, service, deviceConfig, iotManager, httpsPort, httpPort, uploadDir, adminPasswordHash, httpsCertFile, httpsKeyFile, httpsChainFile):
+    def __init__(self, service, deviceConfig, iotManager, httpsPort, httpPort, uploadDir, adminPasswordHash, httpsCertFile, httpsKeyFile, httpsChainFile, localVideoPort):
         self.service = service
         self.deviceConfig = deviceConfig
         self.iotManager = iotManager
@@ -28,6 +28,7 @@ class WebServer:
         self.httpsCertFile = httpsCertFile
         self.httpsKeyFile = httpsKeyFile
         self.httpsChainFile = httpsChainFile
+        self.localVideoPort = localVideoPort
         self.httpsApp = None
         
     def start(self):
@@ -46,7 +47,7 @@ class WebServer:
         (r'/device/(.*)', handlers.DeviceWebHandler, handlersArgs),
         (r'/history', handlers.HistoryWebHandler, handlersArgs),
         (r'/devices', handlers.DevicesWebHandler, handlersArgs),
-        (r'/video', handlers.VideoWebHandler),
+        (r'/video', handlers.VideoWebHandler, dict(localVideoPort=self.localVideoPort)),
         (r'/', handlers.HomeWebHandler, handlersArgs),
         ]
         

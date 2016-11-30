@@ -11,9 +11,10 @@ function startWebsocket(wsOnMessage) {
 }    
 
 function showOkMessage(msg) {
-  $("#msgOk").html(msg);
-  $("#msgOk").slideDown("slow");
-  setTimeout(function() { $("#msgOk").slideUp("slow"); }, 5000);      
+  id = "msg" + new Date().getTime();
+  $(".content").prepend("<aside id='"+id+"' style='display: none;'>"+msg+"</aside>");
+  $("#"+id).slideDown("slow");
+  setTimeout(function(id) { console.log(id); $("#"+id).slideUp("slow", function() {$("#"+id).hide();} ); }, 5000, id);          
 }
 
 var wsOnMessage = function(evt) { 

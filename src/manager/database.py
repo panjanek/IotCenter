@@ -60,7 +60,11 @@ class Database:
         self.logger.debug("Executiong query: {0}".format(query))
         data = {}
         dbRowsCount = 0
+        t1 = datetime.datetime.now()
         for row in c.execute(query, (timeFrom, timeTo)):
+            if dbRowsCount == 0:
+                t2 = datetime.datetime.now()
+                self.logger.debug("First row of data arrived after {0}s".format((t2-t1).total_seconds()))
             dbRowsCount += 1
             timeKey = ""
             valueIdx = 7

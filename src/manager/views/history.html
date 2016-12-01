@@ -10,7 +10,7 @@
             google.charts.setOnLoadCallback(drawChart);
             function drawChart() {
                 var data = google.visualization.arrayToDataTable([
-                  ['Time', {% raw ",".join("'{0} {1}'".format(s.deviceName, s.sensorLabel) for s in chartSensors) %} ],
+                  ['Time', {% raw ",".join("'{0} {1}'".format(s.deviceName.encode('utf-8'), s.sensorLabel.encode('utf-8')) for s in chartSensors) %} ],
                   {% raw ",".join("['{0}', {1}]".format(record["time"], ",".join(str(record.get(s.fullId, {}).get("numberValue", "null")) for s in chartSensors )) for record in chartData) %}
                 ]);    
                 

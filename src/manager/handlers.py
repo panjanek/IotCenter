@@ -28,7 +28,7 @@ class RedirectorHandler(tornado.web.RequestHandler):
         if self.manager.httpsPort != 443:
             host += ":{0}".format(self.manager.httpsPort)
         redirectTo = "https://{0}".format(host)        
-        self.redirect(redirectTo)
+        self.redirect(redirectTo)   
              
 class BaseWebHandler(tornado.web.RequestHandler):
   def isAuthenticated(self):
@@ -38,8 +38,36 @@ class BaseWebHandler(tornado.web.RequestHandler):
     else:
         return False  
         
+        
+class AuthFileHandler(BaseWebHandler):   
+    logger = logging.getLogger()  
+
+    def initialize(self, path):
+        self.path = path   
+
+    def get(self, file):
+        if self.isAuthenticated():
+            if file.find("..") > -1:
+                return
+            fullPath = os.path.join(self.path, file)
+            if not os.path.exists(fullPath):
+                self.set_status(404)
+                self.write("404 Not Found")
+                return
+            ext = file.split('.')[-1]
+            contentType = "application/octet-stream"
+            if ext == "jpg" or ext== "jpeg" or ext == "bmp":
+                contentType = "image/{0}".format(ext) 
+            self.logger.debug("serving file {0}".format(fullPath))
+            with open(fullPath, mode='rb') as file:
+                fileData = file.read()
+                self.write(fileData)
+                self.set_header("Content-Type", contentType)
+        else:       
+            self.redirect("/login?"+urllib.urlencode({"returnUrl":self.request.uri}))
+        
 class VideoWebHandler(BaseWebHandler):		
-    logger = logging.getLogger()
+    logger = logging.getLogger()   
     
     def initialize(self, localVideoPort):
         self.localVideoPort = localVideoPort

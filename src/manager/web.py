@@ -39,7 +39,8 @@ class WebServer:
         application = [
         (r'/(favicon.ico)', tornado.web.StaticFileHandler, {'path': dir + '/img'}),
         (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': dir + '/static'}),
-        (r'/upload/(.*)', tornado.web.StaticFileHandler, {'path': self.uploadDir}),
+        #(r'/upload/(.*)', tornado.web.StaticFileHandler, {'path': self.uploadDir}),
+        (r'/upload/(.*)', handlers.AuthFileHandler, {'path': self.uploadDir}),
         (r'/img/(.*)', tornado.web.StaticFileHandler, {'path': dir + '/img'}),
         (r'/login', handlers.LoginWebHandler, dict(adminPasswordHash=self.adminPasswordHash)),
         (r'/logout', handlers.LogoutWebHandler),

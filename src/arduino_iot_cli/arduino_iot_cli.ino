@@ -10,7 +10,6 @@
 #include <VirtualWire.h>   
 
 const byte receive_pin = 4;
-
 byte mac[] = {  0xDE, 0xAD, 0xBE, 0xEF, 0xFE, 0xED };
 IPAddress myIp(192, 168, 1, 150);
 IPAddress serverIp(192, 168, 1, 134);
@@ -21,12 +20,11 @@ EthernetUDP Udp;
 CBC<AES256> cbcaes256;
 SHA256 sha256;
 char packet[192];
-byte iv[16];
 byte padded[48];
 long counter = 0;
-char tmp1[10] = {0,0,0,0,0,0,0,0,0,0};
+char tmp1[10];
 long tmp1c = 0;
-char tmp2[10] = {0,0,0,0,0,0,0,0,0,0};
+char tmp2[10];
 long tmp2c = 0;
 long c = 0;
 
@@ -43,6 +41,8 @@ void setup() {
   Udp.begin(2345);
   
   Serial.begin(9600);
+  tmp1[0] = 0;
+  tmp2[0] = 0;
   
   //uncomment to reset EEPROM counter
   //EEPROM.write(0, 0);  EEPROM.write(1, 0);  EEPROM.write(2, 0);  EEPROM.write(3, 0);
@@ -52,7 +52,7 @@ void setup() {
 void loop() {
     c++;
     radioReceive();     
-    if (c%1000 == 0 && (tmp1[0] != 0 || tmp2[0] != 0)) { 
+    if (c%3000 == 0 && (tmp1[0] != 0 || tmp2[0] != 0)) { 
         if (tmp1[0] !=0 && tmp2[0] == 0)
         {
             sprintf((char*)padded, "{\"values\":{\"t1\":%s}}", tmp1);
@@ -69,29 +69,24 @@ void loop() {
     
         //encrypt and sign
         byte srclen = strlen((char*)padded);
-        Serial.println(srclen);
         byte padnum = 16 - (srclen % 16);
-        //memcpy(padded, payloadStr, strlen(payloadStr));
         memset(padded+srclen, padnum, padnum);
-        
         int paddedLen = srclen + padnum;
-        Serial.println(paddedLen);
 
-        memset(iv, 0, 16);
-        iv[0] = counter & 0xFF;
-        iv[1] = (counter & 0xFF00) >> 8;
-        iv[3] = (counter & 0xFF0000) >> 16;
-        iv[4] = (counter & 0xFF000000) >> 24;
+        memset(packet+56, 0, 16);
+        packet[56] = counter & 0xFF;
+        packet[57] = (counter & 0xFF00) >> 8;
+        packet[58] = (counter & 0xFF0000) >> 16;
+        packet[59] = (counter & 0xFF000000) >> 24;
         cbcaes256.clear();
         cbcaes256.setKey(key, 32);
-        cbcaes256.setIV(iv, 16);
+        cbcaes256.setIV((uint8_t *)(packet+56), 16);
         memcpy(packet, "IOT\0", 4);
         packet[36] = 1;
         packet[37] = 1;
         packet[38] = 0;
         packet[39] = 0;
         memcpy(packet+40, deviceId, 16);
-        memcpy(packet+56, iv, 16);
         cbcaes256.encrypt(((uint8_t*)packet)+72, (uint8_t*)padded, paddedLen);
         int len = 72+paddedLen;
         sha256.resetHMAC(key, 32);

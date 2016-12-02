@@ -10,7 +10,7 @@
     <tbody>
     {% for device in devices %}
        <tr id="{{device.deviceId}}" data-address="{{device.address}}" data-protocol="{{device.protocol}}">
-         <td title="{{device.deviceId}} uses {{device.protocol}} from {{device.address}}">{{device.name}}</td>
+         <td title="{{device.deviceId}} uses {{device.protocol}} from {{device.address}}"><a href="/device/{{device.deviceId}}">{{device.name}}</a></td>
          <td class="last-contact">{{device.lastContact}}</td>
          <td class="values">
              {% for value in device.values %}        

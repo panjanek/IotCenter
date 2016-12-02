@@ -90,14 +90,17 @@ class IotServerService:
                         if desc == expectedSignature:
                             self.logger.debug("certificate signature OK, creating session for device {0} at {1}:{2}".format(cn, fromaddr[0], fromaddr[1]))
                             if deviceId in self.sessions:
-                                session = self.sessions[deviceId]               
+                                session = self.sessions[deviceId]       
+                                session.clientAddr = fromaddr
+                                session.sslSocket = sslSocket
+                                session.lastUpdateTime = datetime.datetime.now()                                  
                             else:
                                 self.logger.debug("    creating new session for SSL device: %s", binascii.hexlify(deviceId))
                                 session = IotSession(deviceId, IotSession.TYPE_SSL)
+                                session.clientAddr = fromaddr
+                                session.sslSocket = sslSocket
+                                session.lastUpdateTime = datetime.datetime.now()                                
                                 self.sessions[deviceId] = session               
-                            session.clientAddr = fromaddr
-                            session.sslSocket = sslSocket
-                            session.lastUpdateTime = datetime.datetime.now()
                             self.logger.debug("Creating thread for handling SSL communication with {0}".format(binascii.hexlify(deviceId)))
                             conectionThread = threading.Thread(target = self.hadleSslCommunication, args = (deviceId, sslSocket))
                             conectionThread.daemon = True
@@ -156,9 +159,7 @@ class IotServerService:
 
     def task(self):
         self.saveState()   
-        self.removeInactiveSessions()    
-        if self.logger.getEffectiveLevel() == logging.DEBUG:
-            self.dumpSessions()        
+        self.removeInactiveSessions()          
               
     def handleUdpMessage(self, message, clientAddr):
         self.logger.debug("    handling decoded UDP message from device")
@@ -180,10 +181,7 @@ class IotServerService:
             session.lastUpdateTime = datetime.datetime.now()
             counter.udpReceivedCounter = message.counter1            
             if isNewSession:
-                self.sessions[message.deviceId] = session        
-            if self.logger.getEffectiveLevel() == logging.DEBUG:
-                self.dumpSessions()
-            
+                self.sessions[message.deviceId] = session                    
             self.logger.info("Received valid UDP message from {0}:{1}, deviceId={2}, payload={3}. Calling server handler.".format(clientAddr[0], clientAddr[1], binascii.hexlify(message.deviceId), message.payload))
             self.passToHandler(message.deviceId, message.payload)
         else:

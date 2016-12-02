@@ -88,7 +88,8 @@
         <a id="reloadVideoButton" class="pure-button" href="#">
             <i class="fa fa-repeat"></i>
             Reload
-        </a>           
+        </a>       
+        <img id="videoLoader" src="/static/images/ajax-loader.gif" style="display:none;"/>        
     </div>
     
 {% end %}
@@ -139,7 +140,8 @@
           showOkMessage("<p>Command '"+msg.command+"' sent to device.</p>");    
 
           if (command.substring(0, 5) == "video") {
-              setTimeout(function() {$("#videoIframe").attr("src", "/video");}, 5000);
+              setTimeout(function() {$("#videoIframe").attr("src", "/video"); $("#videoLoader").hide();}, 5000);
+              $("#videoLoader").show();
               $( "#dialog-video" ).dialog({
                   modal: true,
                   resizable: false,

@@ -32,7 +32,7 @@ class RedirectorHandler(tornado.web.RequestHandler):
              
 class BaseWebHandler(tornado.web.RequestHandler):
   def isAuthenticated(self):
-    user = self.get_secure_cookie("user")
+    user = self.get_secure_cookie("user", max_age_days=1)
     if user:
         return True
     else:
@@ -242,7 +242,7 @@ class LoginWebHandler(BaseWebHandler):
         returnUrl = self.get_argument("returnUrl", "/")
         self.logger.info("login request with username={0} from ip={1}".format(username, self.request.remote_ip))
         if username == "admin" and bcrypt.hashpw(password, self.adminPasswordHash) == self.adminPasswordHash:
-            self.set_secure_cookie("user", username)
+            self.set_secure_cookie("user", username, expires_days=1)
             self.redirect(returnUrl)
         else:
             self.logger.warning("Invalid login/password request with username={0} from ip={1}".format(username, self.request.remote_ip))
@@ -272,7 +272,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     
     def open(self):
         self.logger.debug('WS New connection was opened from {0}'.format(self.request.remote_ip))
-        user = self.get_secure_cookie("user")
+        user = self.get_secure_cookie("user", max_age_days=1)
         if user == "admin":
             self.connections.add(self)
         else:
@@ -285,7 +285,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             
     def on_message(self, message):
         self.logger.debug('WS Incoming message:{0} from {1}'.format(message, self.request.remote_ip))
-        user = self.get_secure_cookie("user")
+        user = self.get_secure_cookie("user", max_age_days=1)
         if user == "admin":
             parsed = json.loads(message)
             if "command" in parsed and "deviceId" in parsed:

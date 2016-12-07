@@ -17,9 +17,7 @@ import ssl
 class WebServer:
     logger = logging.getLogger()
     
-    def __init__(self, service, deviceConfig, iotManager, httpsPort, httpPort, uploadDir, adminPasswordHash, httpsCertFile, httpsKeyFile, httpsChainFile, localVideoPort):
-        self.service = service
-        self.deviceConfig = deviceConfig
+    def __init__(self, iotManager, httpsPort, httpPort, uploadDir, adminPasswordHash, httpsCertFile, httpsKeyFile, httpsChainFile, localVideoPort):
         self.iotManager = iotManager
         self.httpsPort = httpsPort
         self.httpPort = httpPort
@@ -34,12 +32,11 @@ class WebServer:
     def start(self):
         self.logger.info("starting web server listening at https port {0}".format(self.httpsPort))
         dir = os.path.dirname(os.path.realpath(__file__))
-        handlersArgs = dict(service=self.service, deviceConfig=self.deviceConfig, iotManager=self.iotManager)
+        handlersArgs = dict(iotManager=self.iotManager)
         
         application = [
         (r'/(favicon.ico)', tornado.web.StaticFileHandler, {'path': dir + '/img'}),
         (r'/static/(.*)', tornado.web.StaticFileHandler, {'path': dir + '/static'}),
-        #(r'/upload/(.*)', tornado.web.StaticFileHandler, {'path': self.uploadDir}),
         (r'/upload/(.*)', handlers.AuthFileHandler, {'path': self.uploadDir}),
         (r'/img/(.*)', tornado.web.StaticFileHandler, {'path': dir + '/img'}),
         (r'/login', handlers.LoginWebHandler, dict(adminPasswordHash=self.adminPasswordHash)),

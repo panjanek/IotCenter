@@ -69,7 +69,7 @@ class IotManager:
         self.webServer.websocketSend(model.toJSON())
         
     def startWebServer(self):
-        self.webServer = web.WebServer(self.service, self.deviceConfig, self, self.httpsPort, self.httpPort, self.uploadDir, self.adminPasswordHash, self.httpsCertFile, self.httpsKeyFile, self.httpsChainFile, self.localVideoPort)
+        self.webServer = web.WebServer(self, self.httpsPort, self.httpPort, self.uploadDir, self.adminPasswordHash, self.httpsCertFile, self.httpsKeyFile, self.httpsChainFile, self.localVideoPort)
         self.webServer.start()
         
     def getDeviceFolder(self, deviceId, folder):
@@ -79,5 +79,46 @@ class IotManager:
         dir = os.path.join(deviceFolder, folder)  
         if not os.path.exists(dir):
             os.makedirs(dir)     
-        return dir            
+        return dir  
+
+    def getOnlineDevices(self):
+        devices = [DeviceModel().loadFromSession(session, self.deviceConfig, json.loads(session.lastPayload)).loadImages(self.getDeviceFolder(binascii.hexlify(deviceId), "images"), 6) for deviceId, session in self.service.sessions.items()]
+        return devices
         
+    def getAllDevices(self):
+        self.logger.debug("Loading devices data from DB")    
+        devicesData = self.database.getDevicesData()
+        devices = [DeviceModel().loadFromDict(devDict, self.deviceConfig).loadImages(self.getDeviceFolder(binascii.hexlify(deviceId), "images"), 6) for deviceId, devDict in devicesData.items()]      
+        return devices
+        
+    def getDevice(self, deviceIdHex, imagesCount):
+        deviceId = str(bytearray.fromhex(deviceIdHex))
+        deviceModel = DeviceModel()
+        if deviceId in self.service.sessions:
+            session = self.service.sessions[deviceId]
+            deviceModel.loadFromSession(session, self.deviceConfig, json.loads(session.lastPayload))
+            deviceModel.loadImages(self.getDeviceFolder(deviceIdHex, "images"), imagesCount)
+            deviceModel.loadCommands(self.deviceConfig)
+            return deviceModel
+        else:
+            devicesData = self.database.getDevicesData()
+            if deviceIdHex in devicesData:
+                devDict = devicesData[deviceIdHex]
+                deviceModel.loadFromDict(devDict, self.deviceConfig)
+                deviceModel.loadImages(self.getDeviceFolder(deviceIdHex, "images"), imagesCount)
+                deviceModel.loadCommands(self.deviceConfig)
+                return deviceModel
+            else:
+                return None
+                
+    def sendCommand(self, deviceId, cmdConfigKey):
+        cmdConf = self.deviceConfig[deviceId]["commands"][cmdConfigKey]
+        payload = {}
+        for attr, val in cmdConf.items():
+            if attr != "label" and attr != "icon" and attr != "confirm":
+                payload[attr] = val
+        payloadStr = json.dumps(payload)
+        deviceIdHex = deviceId
+        deviceIdBin = str(bytearray.fromhex(deviceIdHex))
+        self.logger.info("Sending message {0} to device {1}".format(payloadStr, deviceIdHex))
+        self.service.sendMessage(deviceIdBin, payloadStr)

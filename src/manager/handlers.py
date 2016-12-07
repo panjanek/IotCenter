@@ -124,14 +124,12 @@ class VideoWebHandler(BaseWebHandler):
         return line[:-2]                
         
 class HomeWebHandler(BaseWebHandler):
-    def initialize(self, service, deviceConfig, iotManager):
-        self.service = service
-        self.deviceConfig = deviceConfig
+    def initialize(self, iotManager):
         self.iotManager = iotManager
 
     def get(self):
         if self.isAuthenticated():
-            devices = [DeviceModel().loadFromSession(session, self.deviceConfig, json.loads(session.lastPayload)).loadImages(self.iotManager.getDeviceFolder(binascii.hexlify(deviceId), "images"), 6) for deviceId, session in self.service.sessions.items()]
+            devices = self.iotManager.getOnlineDevices()
             self.render("views/home.html", devices=devices)      
         else:
             self.redirect("/login")
@@ -139,16 +137,12 @@ class HomeWebHandler(BaseWebHandler):
 class DevicesWebHandler(BaseWebHandler):
     logger = logging.getLogger()
     
-    def initialize(self, service, deviceConfig, iotManager):
-        self.service = service
-        self.deviceConfig = deviceConfig
+    def initialize(self, iotManager):
         self.iotManager = iotManager
         
     def get(self):
         if self.isAuthenticated():          
-            self.logger.debug("Loading devices data from DB")
-            devicesData = self.iotManager.database.getDevicesData()
-            devices = [DeviceModel().loadFromDict(devDict, self.deviceConfig).loadImages(self.iotManager.getDeviceFolder(binascii.hexlify(deviceId), "images"), 6) for deviceId, devDict in devicesData.items()]              
+            devices = self.iotManager.getAllDevices()        
             self.render("views/devices.html", devices=devices)               
         else:
             self.redirect("/login?"+urllib.urlencode({"returnUrl":self.request.uri}))            
@@ -156,41 +150,24 @@ class DevicesWebHandler(BaseWebHandler):
 class DeviceWebHandler(BaseWebHandler):
     logger = logging.getLogger()
     
-    def initialize(self, service, deviceConfig, iotManager):
-        self.service = service
-        self.deviceConfig = deviceConfig
+    def initialize(self, iotManager):
         self.iotManager = iotManager
         
     def get(self, deviceIdHex):
         if self.isAuthenticated():
-            deviceId = str(bytearray.fromhex(deviceIdHex))
             imagesCount = int(tornado.escape.xhtml_escape(self.get_argument("images", "6")))
-            deviceModel = DeviceModel()
-            if deviceId in self.service.sessions:
-                session = self.service.sessions[deviceId]
-                deviceModel.loadFromSession(session, self.deviceConfig, json.loads(session.lastPayload))
-                deviceModel.loadImages(self.iotManager.getDeviceFolder(deviceIdHex, "images"), imagesCount)
-                deviceModel.loadCommands(self.deviceConfig)
+            deviceModel = self.iotManager.getDevice(deviceIdHex, imagesCount)
+            if deviceModel:
                 self.render("views/device.html", device = deviceModel, imagesCount=imagesCount)    
             else:
-                devicesData = self.iotManager.database.getDevicesData()
-                if deviceIdHex in devicesData:
-                    devDict = devicesData[deviceIdHex]
-                    deviceModel.loadFromDict(devDict, self.deviceConfig)
-                    deviceModel.loadImages(self.iotManager.getDeviceFolder(deviceIdHex, "images"), imagesCount)
-                    deviceModel.loadCommands(self.deviceConfig)
-                    self.render("views/device.html", device = deviceModel, imagesCount=imagesCount)    
-                else:
-                    self.logger.warning("device {0} not found".format(deviceIdHex))            
+                self.logger.warning("device {0} not found".format(deviceIdHex))            
         else:
             self.redirect("/login?"+urllib.urlencode({"returnUrl":self.request.uri}))
 
 class HistoryWebHandler(BaseWebHandler):
     logger = logging.getLogger()
 
-    def initialize(self, service, deviceConfig, iotManager):
-        self.service = service
-        self.deviceConfig = deviceConfig
+    def initialize(self, iotManager):
         self.iotManager = iotManager
 
     def get(self):
@@ -202,7 +179,7 @@ class HistoryWebHandler(BaseWebHandler):
             chartData = []
             chartSensors = []
             showChart = False
-            for deviceId, conf in self.deviceConfig.items():
+            for deviceId, conf in self.iotManager.deviceConfig.items():
                 if "values" in conf:
                     for id, varConf in conf["values"].items():
                         parameterName = "{0}.{1}".format(deviceId, id)
@@ -257,9 +234,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     logger = logging.getLogger()
     connections = set()
     
-    def initialize(self, service, deviceConfig, iotManager):
-        self.service = service
-        self.deviceConfig = deviceConfig    
+    def initialize(self, iotManager): 
         self.iotManager = iotManager
     
     @staticmethod
@@ -289,23 +264,13 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         if user == "admin":
             parsed = json.loads(message)
             if "command" in parsed and "deviceId" in parsed:
-                cmdConf = self.iotManager.deviceConfig[parsed["deviceId"]]["commands"][parsed["command"]]
-                payload = {}
-                for attr, val in cmdConf.items():
-                    if attr != "label" and attr != "icon" and attr != "confirm":
-                        payload[attr] = val
-                payloadStr = json.dumps(payload)
-                deviceIdHex = parsed["deviceId"]
-                deviceId = str(bytearray.fromhex(deviceIdHex))
-                self.logger.info("Sending message {0} to device {1}".format(payloadStr, deviceIdHex))
-                self.service.sendMessage(deviceId, payloadStr)
+                self.iotManager.sendCommand(parsed["deviceId"], parsed["command"])
         else:
             try:
                 self.close()
             except:
                 pass
         
-           
     def on_close(self):
         try:
             self.connections.remove(self)

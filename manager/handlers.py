@@ -103,13 +103,16 @@ class VideoWebHandler(BaseWebHandler):
             self.redirect("/login?"+urllib.urlencode({"returnUrl":self.request.uri}))
    
     def streamVideo(self):
-        while True:
+        cont = True
+        while cont:
             buffer = self.sock.recv(100000)
             if len(buffer) > 0:
                 self.logger.debug("received {0} bytes of video stream".format(len(buffer)))
                 self.write(buffer)
                 self.set_header('Content-type','Content-type: image/jpeg')              
-                self.flush()    
+                self.flush()
+            else:
+                cont = False            
             
     def readLine(self):
         c1 = None

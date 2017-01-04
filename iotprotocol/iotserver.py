@@ -125,7 +125,7 @@ class IotServerService:
             while True:
                 payload = iotcommon.recvMessage(sslSocket)
                 clientAddr = sslSocket.getpeername()
-                self.logger.debug("Received SSL payload from {0} at {1}:{2}: {3}".format(binascii.hexlify(deviceId), clientAddr[0], clientAddr[1], payload))
+                self.logger.info("Received SSL payload from {0} at {1}:{2}: {3}".format(binascii.hexlify(deviceId), clientAddr[0], clientAddr[1], payload))
                 if deviceId in self.sessions:
                     session = self.sessions[deviceId]               
                 else:

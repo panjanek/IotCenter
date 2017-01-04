@@ -280,13 +280,18 @@ class WSHandler(tornado.websocket.WebSocketHandler):
         except:
             pass
         self.logger.debug('WS Connection from {0} was closed.'.format(self.request.remote_ip))  
+        
+    def check_origin(self, origin):
+        self.logger.debug('WS connection origin check: {0}'.format(origin))
+        return True        
 
     def getUser(self):
         user = self.get_secure_cookie("user", max_age_days=1)
         if user is None:
             secret = self.get_argument("secret", None)
-            self.logger.debug("secret={0}".format(secret))
-            if secret == "7a33ad13b6ea4d2caa5ff78fa3b4cfc9ed124ff70c1841379f1fe28933bea075":
+            if secret == self.iotManager.apiSecret:
                 user = "admin"
+            else:
+                self.logger.warning("Invalid secret when calling WS api from {0}".format(self.request.remote_ip))
         return user
     

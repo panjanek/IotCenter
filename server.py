@@ -65,6 +65,7 @@ if __name__ == "__main__":
             serverConf += 'httpsPort = 443\n'
             serverConf += 'httpPort = 80\n'
             serverConf += 'adminPasswordHash = {0}\n'.format(adminPasswordHash)
+            serverConf += 'apiSecret = {0}\n'.format(binascii.hexlify(os.urandom(32)))
             serverConf += 'uploadDir = /tmp/iot-uploads\n'
             serverConf += 'dbFile = {0}\n'.format(os.path.join(confDir, 'iot.db'))
             serverConf += 'httpsCertFile = ' + serverCertFile + '\n'

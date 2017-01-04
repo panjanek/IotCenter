@@ -28,6 +28,7 @@ class IotManager:
         self.httpsPort = int(self.config.get('web', 'httpsPort'))
         self.httpPort = int(self.config.get('web', 'httpPort'))        
         self.adminPasswordHash = self.config.get('web', 'adminPasswordHash')
+        self.apiSecret = self.config.get('web', 'apiSecret')
         self.uploadDir = self.config.get('web', 'uploadDir')
         self.dbFile = self.config.get('web', 'dbFile')
         self.httpsCertFile = self.config.get('web', 'httpsCertFile')

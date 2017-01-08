@@ -24,7 +24,7 @@ import json
 class IotWindow:
     logger = logging.getLogger()
 
-    def __init__(self, screenName):
+    def __init__(self, screenName, width, height):
         self.screenName = screenName
         self.root = None
         self.canvas = None
@@ -40,6 +40,8 @@ class IotWindow:
         self.sensor1ts = datetime.datetime.now()
         self.sensor2ts = datetime.datetime.now()
         self.expirationSeconds = 120
+        self.width = width
+        self.height = height
         
     def start(self):
         self.root = None
@@ -50,22 +52,21 @@ class IotWindow:
                 time.sleep(1)
         self.root.attributes("-fullscreen",True)
         self.root.config(cursor='none')
-        self.canvas = Canvas(self.root, width =480,height=320, bg="black")
+        self.canvas = Canvas(self.root, width = self.width, height=self.height, bg="black")
         self.canvas.pack()
         #img=PhotoImage(file="/home/pi/test.gif")
         #canvas.create_image(240, 160, image=img) 
-        self.rectSensor1 = self.canvas.create_rectangle(0, 0, 320, 150, fill="black", outline="white")
-        self.rectSensor2 = self.canvas.create_rectangle(0, 150, 320, 240, fill="black", outline="white")
-        self.rectTime = self.canvas.create_rectangle(0, 240, 480, 320, fill="black", outline="white")
-        self.txtSensor1 = self.canvas.create_text(160, 85, text="", font=('Helvetica Neue UltraLight', 64), fill="white", anchor='c', tag='sensor1')    
-        self.txtSensor2 = self.canvas.create_text(160, 205, text="", font=('Helvetica Neue UltraLight', 38), fill="white", anchor='c', tag='sensor2')     
-        self.txtTime = self.canvas.create_text(240, 280, text="", font=('Helvetica Neue UltraLight', 40), fill="white", anchor='c', tag='time') 
-        self.txtSensor1Desc = self.canvas.create_text(160, 15, text="", font=('Helvetica Neue UltraLight', 16), fill="white", anchor='c', tag='sensor1desc')      
-        self.txtSensor2Desc = self.canvas.create_text(160, 165, text="", font=('Helvetica Neue UltraLight', 16), fill="white", anchor='c', tag='sensor2desc')
-        for i in range(-154, 154):
-            t = i * 0.25
-            r = self.canvas.create_rectangle(160+t*4, 1, 160+t*4+1, 5, fill=self.mapColor(t), outline=self.mapColor(t))
-        
+        self.rectSensor1 = self.canvas.create_rectangle(0, 0, int(self.width / 1.5), int(self.height * 0.46875), fill="black", outline="white")
+        self.rectSensor2 = self.canvas.create_rectangle(0, int(self.height * 0.46875), int(self.width / 1.5), int(self.height * 0.75), fill="black", outline="white")
+        self.rectTime = self.canvas.create_rectangle(0, int(self.height * 0.75), self.width, self.height, fill="black", outline="white")
+        self.txtSensor1 = self.canvas.create_text(int(self.width / 3), int(self.height * 0.265625), text="", font=('Helvetica Neue UltraLight', int(self.height * 0.2)), fill="white", anchor='c', tag='sensor1')    
+        self.txtSensor2 = self.canvas.create_text(int(self.width / 3), int(self.height * 0.640625), text="", font=('Helvetica Neue UltraLight', int(self.height * 0.11875)), fill="white", anchor='c', tag='sensor2')     
+        self.txtTime = self.canvas.create_text(int(self.width / 2), int(self.height * 0.875), text="", font=('Helvetica Neue UltraLight', int(self.height * 0.125)), fill="white", anchor='c', tag='time') 
+        self.txtSensor1Desc = self.canvas.create_text(int(self.width / 3), int(self.height * 0.046875), text="", font=('Helvetica Neue UltraLight', int(self.height * 0.05)), fill="white", anchor='c', tag='sensor1desc')      
+        self.txtSensor2Desc = self.canvas.create_text(int(self.width / 3), int(self.height * 0.515625), text="", font=('Helvetica Neue UltraLight', int(self.height * 0.05)), fill="white", anchor='c', tag='sensor2desc')
+        #for i in range(-154, 154):
+        #    t = i * 0.25
+        #    r = self.canvas.create_rectangle(160+t*4, 1, 160+t*4+1, 5, fill=self.mapColor(t), outline=self.mapColor(t))       
         self.thread = threading.Thread(target = self.repeat)
         self.thread.daemon = True
         self.thread.start() 
@@ -204,12 +205,14 @@ if __name__ == "__main__":
     configureLogging(logLevel, config.get('log', 'logToConsole'), logFile)
     logger = logging.getLogger()        
     screen = config.get('display', 'screen')
+    width = int(config.get('display', 'width'))
+    height = int(config.get('display', 'height'))
     apiAddr = config.get('display', 'apiAddr')
     apiSecret = config.get('display', 'apiSecret')
     sensor1 = config.get('display', 'sensor1')
     sensor2 = config.get('display', 'sensor2')
     logger.info("Creating window at screen {0}".format(screen))
-    window = IotWindow(screen)
+    window = IotWindow(screen, width, height)
     logger.info("Connecting to WebSocket API at {0} listening for sensors {1},{2}".format(apiAddr, sensor1, sensor2))
     ws = WebsocketController(window, apiAddr+"?secret="+apiSecret, "3e797b8e7aee511cdb4ecd5063e96b11.t1", "3e797b8e7aee511cdb4ecd5063e96b11.t2")   
     pidFile = config.get('display', 'pidFile')

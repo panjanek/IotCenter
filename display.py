@@ -62,6 +62,10 @@ class IotWindow:
         self.txtTime = self.canvas.create_text(240, 280, text="", font=('Helvetica Neue UltraLight', 40), fill="white", anchor='c', tag='time') 
         self.txtSensor1Desc = self.canvas.create_text(160, 15, text="", font=('Helvetica Neue UltraLight', 16), fill="white", anchor='c', tag='sensor1desc')      
         self.txtSensor2Desc = self.canvas.create_text(160, 165, text="", font=('Helvetica Neue UltraLight', 16), fill="white", anchor='c', tag='sensor2desc')
+        for i in range(-154, 154):
+            t = i * 0.25
+            r = self.canvas.create_rectangle(160+t*4, 1, 160+t*4+1, 5, fill=self.mapColor(t), outline=self.mapColor(t))
+        
         self.thread = threading.Thread(target = self.repeat)
         self.thread.daemon = True
         self.thread.start() 
@@ -76,24 +80,40 @@ class IotWindow:
         self.sensor1ts = datetime.datetime.now()
         if description is not None:
             self.canvas.itemconfigure(self.txtSensor1Desc, text=description)
-        #self.canvas.itemconfigure(self.txtSensor1, fill=self.mapColor(0, 20, number))
+        self.canvas.itemconfigure(self.txtSensor1, fill=self.mapColor(number))
         
     def displaySensor2(self,number, description):
         self.canvas.itemconfigure(self.txtSensor2, text="{0:.1f}".format(number)+u'\u2103')  
         self.sensor2ts = datetime.datetime.now()   
         if description is not None:
-            self.canvas.itemconfigure(self.txtSensor2Desc, text=description)        
+            self.canvas.itemconfigure(self.txtSensor2Desc, text=description)     
+        self.canvas.itemconfigure(self.txtSensor2, fill=self.mapColor(number))            
         
-    def mapColor(self, min, max, number):
+    def mapColor(self, t):
         r,g,b = 255,255,255
-        if number <= min:
-            r,g,b = 128,128,255
-        elif number >= max:
-            r,g,b = 255,128,128
+        if t <= -30:
+            r,g,b = 128,128,255   # below -30: dark blue
+        elif t <= -10:
+            r,g,b = self.linearMap(t, -30, -10, 128, 192),self.linearMap(t, -30, -10, 128, 192),255   # -30 to -10: to light blue
+        elif t <= 5:
+            r,g,b = self.linearMap(t, -10, 5, 192, 0),self.linearMap(t, -10, 5, 192, 255),self.linearMap(t, -10, 5, 255, 192)   # -10 to 5: to aquamarin
+        elif t <= 15:
+            r,g,b = self.linearMap(t, 5, 15, 0, 128),255,self.linearMap(t, 5, 15, 192, 128)   # 5 to 15: to green
+        elif t <= 25:
+            r,g,b = self.linearMap(t, 15, 25, 128, 255),255,128   # 15 to 25: to yellow 
+        elif t <= 35:
+            r,g,b = 255,self.linearMap(t, 25, 35, 255, 128),128   # 25 to 35: to red
         else:
-            r,g,b = 128,255,128
-            
+            r,g,b = 255,128,128   # above 30: red   
         return "#" + binascii.hexlify(bytearray([r,g,b]))
+        
+    def linearMap(self, x, minx, maxx, miny, maxy):
+        if x <= minx:
+            return int(miny)
+        elif x >= maxx:
+            return int(maxy)
+        else:
+            return int(miny + (maxy - miny) * (x - minx) / (maxx - minx))
         
     def repeat(self):
         while True:
@@ -102,7 +122,12 @@ class IotWindow:
                 if (datetime.datetime.now() - self.sensor1ts).total_seconds() > self.expirationSeconds:
                     self.canvas.itemconfigure(self.txtSensor1, text="")
                 if (datetime.datetime.now() - self.sensor2ts).total_seconds() > self.expirationSeconds:
-                    self.canvas.itemconfigure(self.txtSensor2, text="")                    
+                    self.canvas.itemconfigure(self.txtSensor2, text="")         
+                
+                #t = random.random()*60-20
+                #self.displaySensor1(t, "test")
+            except Exception as e:    
+                self.logger.exception(e)
             except:
                 pass
             time.sleep(1)  

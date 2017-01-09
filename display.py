@@ -37,6 +37,10 @@ class IotWindow:
         self.txtSensor11Desc = None
         self.txtSensor2Desc = None
         self.thread = None
+        self.txtSensor1SmallIcon = None
+        self.txtSensor2SmallIcon = None
+        self.txtSensor1BigIcon = None
+        self.txtSensor2BigIcon = None
         self.sensor1ts = datetime.datetime.now()
         self.sensor2ts = datetime.datetime.now()
         self.expirationSeconds = 120
@@ -59,11 +63,15 @@ class IotWindow:
         self.rectSensor1 = self.canvas.create_rectangle(0, 0, int(self.width / 1.5), int(self.height * 0.46875), fill="black", outline="white")
         self.rectSensor2 = self.canvas.create_rectangle(0, int(self.height * 0.46875), int(self.width / 1.5), int(self.height * 0.75), fill="black", outline="white")
         self.rectTime = self.canvas.create_rectangle(0, int(self.height * 0.75), self.width, self.height, fill="black", outline="white")
-        self.txtSensor1 = self.canvas.create_text(int(self.width / 3), int(self.height * 0.265625), text="", font=('Helvetica Neue UltraLight', int(self.height * 0.2)), fill="white", anchor='c', tag='sensor1')    
-        self.txtSensor2 = self.canvas.create_text(int(self.width / 3), int(self.height * 0.640625), text="", font=('Helvetica Neue UltraLight', int(self.height * 0.11875)), fill="white", anchor='c', tag='sensor2')     
+        self.txtSensor1 = self.canvas.create_text(int(self.width / 3), int(self.height * 0.265625), text="", font=('Helvetica Neue UltraLight', int(self.height * 0.2)), fill="white", anchor='c', tag='sensor1') 
+        self.txtSensor1BigIcon = self.canvas.create_text(int(self.width * 0.835),int(self.height * 0.265625),text="",font=('Helvetica Neue UltraLight',int(self.height * 0.3)), fill="white",anchor='c',tag='sensor1bi')
+        self.txtSensor2 = self.canvas.create_text(int(self.width / 3), int(self.height * 0.640625), text="", font=('Helvetica Neue UltraLight', int(self.height*0.11875)),fill="white", anchor='c', tag='sensor2')    
+        self.txtSensor2BigIcon = self.canvas.create_text(int(self.width * 0.835),int(self.height * 0.640625),text="",font=('Helvetica Neue UltraLight',int(self.height*0.18)),fill="white",anchor='c',tag='sensor2bi')
         self.txtTime = self.canvas.create_text(int(self.width / 2), int(self.height * 0.875), text="", font=('Helvetica Neue UltraLight', int(self.height * 0.125)), fill="white", anchor='c', tag='time') 
-        self.txtSensor1Desc = self.canvas.create_text(int(self.width / 3), int(self.height * 0.046875), text="", font=('Helvetica Neue UltraLight', int(self.height * 0.05)), fill="white", anchor='c', tag='sensor1desc')      
+        self.txtSensor1Desc = self.canvas.create_text(int(self.width / 3), int(self.height * 0.046875), text="", font=('Helvetica Neue UltraLight', int(self.height * 0.05)), fill="white", anchor='c', tag='sensor1desc')
+        self.txtSensor1SmallIcon = self.canvas.create_text(int(self.width * 0.635), int(self.height * 0.046875),text="", font=('Helvetica Neue UltraLight', int(self.height * 0.05)), fill="white",anchor='c',tag='sensor1si')
         self.txtSensor2Desc = self.canvas.create_text(int(self.width / 3), int(self.height * 0.515625), text="", font=('Helvetica Neue UltraLight', int(self.height * 0.05)), fill="white", anchor='c', tag='sensor2desc')
+        self.txtSensor2SmallIcon = self.canvas.create_text(int(self.width * 0.635), int(self.height * 0.515625),text="", font=('Helvetica Neue UltraLight', int(self.height * 0.05)), fill="white",anchor='c',tag='sensor2si')
         #for i in range(-154, 154):
         #    t = i * 0.25
         #    r = self.canvas.create_rectangle(160+t*4, 1, 160+t*4+1, 5, fill=self.mapColor(t), outline=self.mapColor(t))       
@@ -76,20 +84,47 @@ class IotWindow:
     def displayTime(self):
         self.canvas.itemconfigure(self.txtTime, text=datetime.datetime.now().strftime('%d %b %H:%M:%S'))
         
-    def displaySensor1(self,number, description):
+    def displaySensor1(self,number, description, trend):
         self.canvas.itemconfigure(self.txtSensor1, text="{0:.1f}".format(number)+u'\u2103')
         self.sensor1ts = datetime.datetime.now()
+        color = self.mapColor(number)
         if description is not None:
             self.canvas.itemconfigure(self.txtSensor1Desc, text=description)
-        self.canvas.itemconfigure(self.txtSensor1, fill=self.mapColor(number))
+        self.canvas.itemconfigure(self.txtSensor1, fill=color)
+        self.canvas.itemconfigure(self.txtSensor1BigIcon, fill=color) 
+        self.canvas.itemconfigure(self.txtSensor1SmallIcon, text=u'\u2022')    
+        def hide():
+            time.sleep(0.5)
+            self.canvas.itemconfigure(self.txtSensor1SmallIcon, text="")
+        threading.Thread(target = hide).start()      
+        if trend == -1:
+            self.canvas.itemconfigure(self.txtSensor1BigIcon, text=u'\u2198') 
+        elif trend == 1:
+            self.canvas.itemconfigure(self.txtSensor1BigIcon, text=u'\u2197') 
+        else:
+            self.canvas.itemconfigure(self.txtSensor1BigIcon, text="")
+                
         
-    def displaySensor2(self,number, description):
+    def displaySensor2(self,number, description, trend):
         self.canvas.itemconfigure(self.txtSensor2, text="{0:.1f}".format(number)+u'\u2103')  
-        self.sensor2ts = datetime.datetime.now()   
+        self.sensor2ts = datetime.datetime.now()  
+        color = self.mapColor(number)        
         if description is not None:
             self.canvas.itemconfigure(self.txtSensor2Desc, text=description)     
-        self.canvas.itemconfigure(self.txtSensor2, fill=self.mapColor(number))            
-        
+        self.canvas.itemconfigure(self.txtSensor2, fill=color)  
+        self.canvas.itemconfigure(self.txtSensor2BigIcon, fill=color)  
+        self.canvas.itemconfigure(self.txtSensor2SmallIcon, text=u'\u2022')      
+        def hide():
+            time.sleep(0.5)
+            self.canvas.itemconfigure(self.txtSensor2SmallIcon, text="")
+        threading.Thread(target = hide).start()            
+        if trend == -1:
+            self.canvas.itemconfigure(self.txtSensor2BigIcon, text=u'\u2198') 
+        elif trend == 1:
+            self.canvas.itemconfigure(self.txtSensor2BigIcon, text=u'\u2197') 
+        else:
+            self.canvas.itemconfigure(self.txtSensor2BigIcon, text="")
+            
     def mapColor(self, t):
         r,g,b = 255,255,255
         if t <= -30:
@@ -122,8 +157,10 @@ class IotWindow:
                 self.displayTime()
                 if (datetime.datetime.now() - self.sensor1ts).total_seconds() > self.expirationSeconds:
                     self.canvas.itemconfigure(self.txtSensor1, text="")
+                    self.canvas.itemconfigure(self.txtSensor1BigIcon, text="")
                 if (datetime.datetime.now() - self.sensor2ts).total_seconds() > self.expirationSeconds:
-                    self.canvas.itemconfigure(self.txtSensor2, text="")         
+                    self.canvas.itemconfigure(self.txtSensor2, text="")      
+                    self.canvas.itemconfigure(self.txtSensor2BigIcon, text="")                    
                 
                 #t = random.random()*60-20
                 #self.displaySensor1(t, "test")
@@ -169,12 +206,12 @@ class WebsocketController:
                 sensor = next(v for v in values if v.get("id", None) == self.sensor1)
                 if sensor is not None:
                     self.logger.debug("showing value for sensor1: {0}".format(sensor["value"]))
-                    self.window.displaySensor1(sensor["value"], parsed["name"]+" "+sensor["label"])
+                    self.window.displaySensor1(sensor["value"], parsed["name"]+" "+sensor["label"], 0)
             if deviceId == self.device2:
                 sensor = next(v for v in values if v.get("id", None) == self.sensor2)
                 if sensor is not None:
                     self.logger.debug("showing value for sensor2: {0}".format(sensor["value"]))
-                    self.window.displaySensor2(sensor["value"], parsed["name"]+" "+sensor["label"])
+                    self.window.displaySensor2(sensor["value"], parsed["name"]+" "+sensor["label"], 0)
 
     def on_error(self, ws, error):
         self.logger.error("WS error")

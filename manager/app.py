@@ -40,6 +40,8 @@ class IotManager:
         self.deviceConfig = dict()
         for deviceId, jsonConf in dict(self.config.items('devices')).iteritems():
             self.deviceConfig[deviceId] = json.loads(jsonConf, object_pairs_hook=OrderedDict)
+        self.trends = dict()
+        self.lock = threading.Lock()
         
     def start(self):
         self.logger.info("starting server app handler")
@@ -68,6 +70,10 @@ class IotManager:
             for variable, value in payloadDict["values"].items():
                 self.database.save(deviceIdHex, variable, session.protocol, session.clientAddr[0], session.lastUpdateTime, value)
         self.webServer.websocketSend(model.toJSON())
+        with session.lock:
+            print "aaa"
+            model.saveTrends(self.trends)
+            print self.trends
         
     def startWebServer(self):
         self.webServer = web.WebServer(self, self.httpsPort, self.httpPort, self.uploadDir, self.adminPasswordHash, self.httpsCertFile, self.httpsKeyFile, self.httpsChainFile, self.localVideoPort)

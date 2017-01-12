@@ -66,9 +66,33 @@ class DeviceModel:
         files = files[:count]
         self.images = [UploadedImage("/upload/{0}/images/{1}".format(self.deviceId, file), os.path.join(imagesDir, file), datetime.datetime.fromtimestamp(os.path.getmtime(os.path.join(imagesDir, file))).strftime('%Y-%m-%d %H:%M:%S')) for file in files]   
         return self        
+        
+    def saveTrends(self, trends):
+        time = datetime.datetime.now()
+        for value in self.values:
+            key = "{0}.{1}".format(self.deviceId, value.id)
+            if not key in trends:
+                trends[key] = []
+            trends[key].append(SensorTimedValue(time, value.value))
+            trends[key].sort(key=lambda r: r.time, reverse=True)
+            trends[key] = trends[key][:10]
     
     def toJSON(self):
         return json.dumps(self, default=lambda o: o.__dict__, sort_keys=True, indent=4)    
+        
+class SensorTimedValue:
+    def __init__(self, time, value):
+        self.time=time
+        self.value=value
+
+    def __str__(self):
+        return "<{0} - {1}>".format(self.time.strftime('%Y-%m-%d %H:%M:%S'), self.value)
+        
+    def __unicode__(self):
+        return self.__str__()
+        
+    def __repr__(self):
+        return self.__str__()
 
 class SensorValue:
     def __init__(self, id, label, value, unit):

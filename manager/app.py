@@ -69,10 +69,10 @@ class IotManager:
         if "values" in payloadDict:
             for variable, value in payloadDict["values"].items():
                 self.database.save(deviceIdHex, variable, session.protocol, session.clientAddr[0], session.lastUpdateTime, value)
-        self.webServer.websocketSend(model.toJSON())
         with session.lock:
             model.saveTrends(self.trends)
             model.computeTrends(self.trends)
+        self.webServer.websocketSend(model.toJSON())
         
     def startWebServer(self):
         self.webServer = web.WebServer(self, self.httpsPort, self.httpPort, self.uploadDir, self.adminPasswordHash, self.httpsCertFile, self.httpsKeyFile, self.httpsChainFile, self.localVideoPort)

@@ -206,12 +206,12 @@ class WebsocketController:
                 sensor = next(v for v in values if v.get("id", None) == self.sensor1)
                 if sensor is not None:
                     self.logger.debug("showing value for sensor1: {0}".format(sensor["value"]))
-                    self.window.displaySensor1(sensor["value"], parsed["name"]+" "+sensor["label"], 0)
+                    self.window.displaySensor1(sensor["value"], parsed["name"]+" "+sensor["label"], sensor.get("trend", None))
             if deviceId == self.device2:
                 sensor = next(v for v in values if v.get("id", None) == self.sensor2)
                 if sensor is not None:
                     self.logger.debug("showing value for sensor2: {0}".format(sensor["value"]))
-                    self.window.displaySensor2(sensor["value"], parsed["name"]+" "+sensor["label"], 0)
+                    self.window.displaySensor2(sensor["value"], parsed["name"]+" "+sensor["label"], sensor.get("trend", None))
 
     def on_error(self, ws, error):
         self.logger.error("WS error")

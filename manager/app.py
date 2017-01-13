@@ -71,9 +71,8 @@ class IotManager:
                 self.database.save(deviceIdHex, variable, session.protocol, session.clientAddr[0], session.lastUpdateTime, value)
         self.webServer.websocketSend(model.toJSON())
         with session.lock:
-            print "aaa"
             model.saveTrends(self.trends)
-            print self.trends
+            model.computeTrends(self.trends)
         
     def startWebServer(self):
         self.webServer = web.WebServer(self, self.httpsPort, self.httpPort, self.uploadDir, self.adminPasswordHash, self.httpsCertFile, self.httpsKeyFile, self.httpsChainFile, self.localVideoPort)
@@ -89,7 +88,7 @@ class IotManager:
         return dir  
 
     def getOnlineDevices(self):
-        devices = [DeviceModel().loadFromSession(session, self.deviceConfig, json.loads(session.lastPayload)).loadImages(self.getDeviceFolder(binascii.hexlify(deviceId), "images"), 6) for deviceId, session in self.service.sessions.items()]
+        devices = [DeviceModel().loadFromSession(session, self.deviceConfig, json.loads(session.lastPayload)).loadImages(self.getDeviceFolder(binascii.hexlify(deviceId).computeTrends(self.trends), "images"), 6) for deviceId, session in self.service.sessions.items()]
         return devices
         
     def getAllDevices(self):
@@ -106,6 +105,7 @@ class IotManager:
             deviceModel.loadFromSession(session, self.deviceConfig, json.loads(session.lastPayload))
             deviceModel.loadImages(self.getDeviceFolder(deviceIdHex, "images"), imagesCount)
             deviceModel.loadCommands(self.deviceConfig)
+            deviceModel.computeTrends(self.trends)            
             return deviceModel
         else:
             devicesData = self.database.getDevicesData()

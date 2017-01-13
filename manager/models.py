@@ -96,14 +96,6 @@ class DeviceModel:
                         value.trend = 1
                     if current_avg < previous_avg - 0.05:
                         value.trend = -1
-                        
-                    print "previous: {0}".format(previous)
-                    print "previous numbers: {0}".format([x.value for x in previous])
-                    print "previous avg: {0}".format(previous_avg)
-                    print "current: {0}".format(current)
-                    print "current numbers: {0}".format([x.value for x in current])
-                    print "current avg: {0}".format(current_avg)
-                    print "---- {0}: {1}".format(key, value.trend)
         return self
     
     

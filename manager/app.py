@@ -88,7 +88,7 @@ class IotManager:
         return dir  
 
     def getOnlineDevices(self):
-        devices = [DeviceModel().loadFromSession(session, self.deviceConfig, json.loads(session.lastPayload)).loadImages(self.getDeviceFolder(binascii.hexlify(deviceId).computeTrends(self.trends), "images"), 6) for deviceId, session in self.service.sessions.items()]
+        devices = [DeviceModel().loadFromSession(session, self.deviceConfig, json.loads(session.lastPayload)).loadImages(self.getDeviceFolder(binascii.hexlify(deviceId), "images"), 6).computeTrends(self.trends) for deviceId, session in self.service.sessions.items()]
         return devices
         
     def getAllDevices(self):

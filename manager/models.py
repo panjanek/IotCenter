@@ -92,9 +92,9 @@ class DeviceModel:
                     previous_avg = sum(previous_values)/len(previous_values)
                     current_values = [x.value for x in current]
                     current_avg = sum(current_values)/len(current_values)
-                    if current_avg > previous_avg + 0.05:
+                    if current_avg > previous_avg + 0.02:
                         value.trend = 1
-                    if current_avg < previous_avg - 0.05:
+                    if current_avg < previous_avg - 0.02:
                         value.trend = -1
         return self
     

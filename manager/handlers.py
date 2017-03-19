@@ -150,6 +150,18 @@ class DevicesWebHandler(BaseWebHandler):
         else:
             self.redirect("/login?"+urllib.urlencode({"returnUrl":self.request.uri}))            
             
+class RssWebHandler(BaseWebHandler):
+    logger = logging.getLogger()
+    
+    def initialize(self, iotManager):
+        self.iotManager = iotManager
+        
+    def get(self):     
+        devices = self.iotManager.getOnlineDevices()
+        xml = self.render_string("views/rss.xml", devices=devices)               
+        self.set_header('Content-Type', 'text/xml')
+        self.finish(xml)
+           
 class DeviceWebHandler(BaseWebHandler):
     logger = logging.getLogger()
     

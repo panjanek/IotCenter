@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<rss version="2.0">
+<channel>
+  <title>IOT Personal Cloud</title>
+  <link>https://panjanek.no-ip.org</link>
+  <description>IOT Home automation</description>
+  {% for device in devices %}
+      <item>
+        <title>{{device.name}} Current status (from {{device.lastContact}})</title>
+        <link>https://panjanek.no-ip.org</link>
+        <description>
+          {% for value in device.values %}        
+             {{value.label}}:{{value.value}}{%if value.unit %}{%raw value.unit%}{% end %}
+          {% end %} 
+         </description>
+      </item>            
+  {% end %}    
+</channel>
+</rss>

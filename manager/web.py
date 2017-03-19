@@ -60,6 +60,7 @@ class WebServer:
         self.httpsServer.listen(self.httpsPort)
         
         httpApplication = [
+            (r'/rss', handlers.RssWebHandler, handlersArgs),
             (r'/', handlers.RedirectorHandler, dict(manager = self)),
             (r'/(.*)', tornado.web.StaticFileHandler, {'path': dir + '/plain' })
         ]

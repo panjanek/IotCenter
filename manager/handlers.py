@@ -161,6 +161,41 @@ class RssWebHandler(BaseWebHandler):
         xml = self.render_string("views/rss.xml", devices=devices)               
         self.set_header('Content-Type', 'text/xml')
         self.finish(xml)
+        
+class ApiWebHandler(BaseWebHandler):
+    logger = logging.getLogger()
+    
+    def initialize(self, iotManager):
+        self.iotManager = iotManager
+        
+    def get(self):    
+        user = user = self.getUser()
+        if user == "admin":    
+            onlinedevices = self.iotManager.getOnlineDevices()
+            dev = [{'id':d.deviceId, 'values':[{'id':v.id, 'value':v.value, 'label':v.label} for v in d.values]} for d in onlinedevices]
+            response = { 'devices': dev }       
+            self.set_header('Content-Type', 'application/json')
+            self.finish(json.dumps(response))      
+        else:
+            self.logger.warning("Unauthorized API connection from {0}!".format(self.request.remote_ip))
+            self.clear()
+            self.set_status(403) 
+            self.set_header('Content-Type', 'application/json')
+            self.finish(json.dumps({'error':123, 'message':'forbiden'}))
+            try:
+                self.close()
+            except:
+                pass   
+                
+    def getUser(self):
+        user = self.get_secure_cookie("user", max_age_days=1)
+        if user is None:
+            secret = self.get_argument("secret", None)
+            if secret == self.iotManager.apiSecret:
+                user = "admin"
+            else:
+                self.logger.warning("Invalid secret when calling WS api from {0}".format(self.request.remote_ip))
+        return user                
            
 class DeviceWebHandler(BaseWebHandler):
     logger = logging.getLogger()

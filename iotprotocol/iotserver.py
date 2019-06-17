@@ -144,7 +144,7 @@ class IotServerService:
             self.logger.error("Something went wrong, closing connection")
             self.logger.exception(e)
             try:
-                self.removeSession(deviceId)
+                #self.removeSession(deviceId)
                 self.logger.info("closing connection to deviceId {0}, IP {1}".format(binascii.hexlify(deviceId), sslSocket.getpeername()[0]))
                 sslSocket.shutdown(socket.SHUT_RDWR)
                 self.logger.info("connection to deviceId {0}, IP {1} closed".format(binascii.hexlify(deviceId), sslSocket.getpeername()[0]))

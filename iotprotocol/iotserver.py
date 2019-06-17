@@ -135,6 +135,8 @@ class IotServerService:
                     self.sessions[deviceId] = session                 
                 session.lastUpdateTime = datetime.datetime.now()
                 session.lastPayload = payload
+                session.clientAddr = clientAddr
+                session.sslSocket = sslSocket                
                 if self.logger.getEffectiveLevel() == logging.DEBUG:
                     self.dumpSessions()                        
                 self.passToHandler(deviceId, payload)

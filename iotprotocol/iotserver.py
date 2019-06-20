@@ -11,6 +11,7 @@ import os
 import socket
 import ssl
 import sys
+import json
 
 class IotSession:
     TYPE_UDP = 'udp'
@@ -217,7 +218,11 @@ class IotServerService:
             
     def passToHandler(self, deviceId, payload):            
         try:
-            self.serverHandler.handleDeviceCall(deviceId, payload)        
+            self.serverHandler.handleDeviceCall(deviceId, payload)
+            ackDict = {"type":"ack"}
+            payload = json.dumps(ackDict)
+            self.logger.info("Responding to {0} with {1}".format(binascii.hexlify(deviceId), payload))
+            self.sendMessage(deviceId, payload)
         except Exception as e:
             self.logger.exception(e)
             

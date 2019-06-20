@@ -49,7 +49,7 @@ class IotClientService:
             timer.daemon = True
             timer.start()
             self.udpServer.serve_forever()      
-        elif self.protocol == "ssl":
+        elif self.protocol == "ssl": 
             while True:
                 self.logger.info("Connecting by SSL to server at {0}".format(self.serverAddr))
                 try:
@@ -60,6 +60,7 @@ class IotClientService:
                     servercert = sslSocket.getpeercert()
                     subject = dict(x[0] for x in servercert['subject'])
                     self.logger.info("Connected to server with valid certificate, CN={0}".format(subject['commonName']))  
+                    sslSocket.settimeout(2*self.sslIntervalSeconds)
                     self.sslSocket = sslSocket
                     sslThread = threading.Thread(target = self.sslListen, args = (self.sslSocket,))
                     sslThread.daemon = True

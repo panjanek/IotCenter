@@ -149,8 +149,26 @@ def recvBytes(sock, count):
     
 def sendMessage(sock, data):
     length = len(data)
-    sock.sendall(struct.pack('<I', length))
-    sock.sendall(data)
+    header = struct.pack('<I', length)
+    sendMessageWithCheck(sock, header)
+    sendMessageWithCheck(sock, data)
+
+def sendMessageWithCheck(sock, data):
+    logger = logging.getLogger()    
+    n = len(data)
+    logger.info("total {0} bytes to send".format(n))
+    totalsent = 0
+    while totalsent < n:
+        logger.info("sending {0} bytes".format(n - totalsent))
+        sent = sock.send(data[totalsent:])
+        logger.info("sent {0} bytes".format(sent))
+        if sent == 0:
+            logger.error("socket error!")
+            raise RuntimeError("socket connection broken")
+        totalsent = totalsent + sent
+        if totalsent < n:
+            logger.info("resending")    
+    logger.info("sent all")              
 
 def recvMessage(sock):
     lengthbuf = recvBytes(sock, 4)

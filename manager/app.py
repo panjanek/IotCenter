@@ -69,6 +69,8 @@ class IotManager:
         if "values" in payloadDict:
             for variable, value in payloadDict["values"].items():
                 self.database.save(deviceIdHex, variable, session.protocol, session.clientAddr[0], session.lastUpdateTime, value)
+        if "log" in payloadDict:
+            self.database.log(deviceIdHex, session.protocol, session.clientAddr[0], session.lastUpdateTime, payloadDict["log"])             
         with session.lock:
             model.saveTrends(self.trends)
             model.computeTrends(self.trends)

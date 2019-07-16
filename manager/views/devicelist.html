@@ -29,7 +29,11 @@
             <a class="pure-button" href="/history?{% raw "&".join("{0}.{1}=on".format(device.deviceId, v.id) for v in device.values) %}" style="margin-top: 5px">
                 <i class="fa fa-area-chart"></i>
                 Charts
-            </a>                  
+            </a>    
+            <a class="pure-button" href="/logs/{{device.deviceId}}" style="margin-top:5px">
+                <i class="fa fa-file"></i>
+                Logs
+            </a>              
          </td>
        </tr>
     {% end %}

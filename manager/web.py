@@ -46,6 +46,7 @@ class WebServer:
         (r'/rss', handlers.RssWebHandler, handlersArgs),
         (r'/api', handlers.ApiWebHandler, handlersArgs),
         (r'/history', handlers.HistoryWebHandler, handlersArgs),
+        (r'/logs/(.*)', handlers.LogsWebHandler, handlersArgs),
         (r'/devices', handlers.DevicesWebHandler, handlersArgs),
         (r'/video', handlers.VideoWebHandler, dict(localVideoPort=self.localVideoPort)),
         (r'/', handlers.HomeWebHandler, handlersArgs),

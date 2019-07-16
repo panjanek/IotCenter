@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+
+{% block title %} logs {% end %}
+
+{% block head %}
+
+{% end %}
+
+{% block header %}
+    <h1>IoT Charts</h1>      
+{% end %}
+
+{% block content %}
+    <h2>Device {{device.name}} logs</h2>
+    <form action="/logs/{{device.deviceId}}" method="GET" class="pure-form pure-form-aligned">
+        <fieldset>
+            <div class="pure-control-group">
+                <label for="fromTime">From</label>
+                <input id="fromTime" name="fromTime" type="text" value="{{fromTime}}" class="datepicker"/>
+            </div>
+            <div class="pure-control-group">
+                <label for="toTime">To</label>
+                <input id="toTime" name="toTime" type="text" value="{{toTime}}" class="datepicker"/>
+            </div>       
+            <div class="pure-controls">
+                <button type="submit" class="pure-button pure-button-primary">Show</button>
+             </div>               
+        </fieldset>
+    </form>
+
+     
+    <table id="logDataTable" class="pure-table">
+        <thead>
+           <tr>
+                <td>Time</td>
+                <td>Log text</td>
+          </tr>
+        </thead>
+        <tbody>
+          {% for record in logData %}
+              <tr>
+                  <td>{{record["time"]}}</td>
+                  <td>{% raw record["text"].replace("\n", "<br/>") %}</td>             
+              </tr>
+          {% end %}
+        </tbody>
+    </table>
+{% end %}
+
+{% block extrajs %}
+	<script>   
+      $(function(){
+          $( ".datepicker" ).datepicker({dateFormat : "yy-mm-dd"});
+      });
+    </script>
+{% end %}
+

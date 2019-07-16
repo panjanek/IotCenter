@@ -252,6 +252,26 @@ class HistoryWebHandler(BaseWebHandler):
             self.render("views/history.html", sensors=sensors, fromTime=fromTime, toTime=toTime, aggregation=aggregation, showChart=showChart, chartData=chartData, chartSensors=chartSensors)      
         else:
             self.redirect("/login?"+urllib.urlencode({"returnUrl":self.request.uri}))
+
+class LogsWebHandler(BaseWebHandler):
+    logger = logging.getLogger()
+
+    def initialize(self, iotManager):
+        self.iotManager = iotManager
+
+    def get(self, deviceIdHex):
+        self.logger.info("LogsWebHandler 0")  
+        if self.isAuthenticated():
+            self.logger.info("LogsWebHandler 1")  
+            fromTime = tornado.escape.xhtml_escape(self.get_argument("fromTime", (datetime.datetime.now() - datetime.timedelta(days=2)).strftime('%Y-%m-%d')))
+            toTime = tornado.escape.xhtml_escape(self.get_argument("toTime", (datetime.datetime.now() + datetime.timedelta(days=1)).strftime('%Y-%m-%d')))   
+            self.logger.info("LogsWebHandler 2")  
+            deviceModel = self.iotManager.getDevice(deviceIdHex, 1)
+            fromTimeParsed = datetime.datetime.strptime(fromTime, '%Y-%m-%d')
+            toTimeParsed = datetime.datetime.strptime(toTime, '%Y-%m-%d')   
+            self.logger.info("LogsWebHandler 3")                
+            logData = self.iotManager.database.getLogData(deviceIdHex, fromTimeParsed, toTimeParsed) 
+            self.render("views/logs.html", fromTime=fromTime, toTime=toTime, logData=logData, device = deviceModel)               
             
 class LoginWebHandler(BaseWebHandler):
     logger = logging.getLogger()

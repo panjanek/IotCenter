@@ -219,10 +219,13 @@ class IotServerService:
     def passToHandler(self, deviceId, payload):            
         try:
             self.serverHandler.handleDeviceCall(deviceId, payload)
-            ackDict = {"type":"ack"}
-            payload = json.dumps(ackDict)
-            self.logger.info("Responding to {0} with {1}".format(binascii.hexlify(deviceId), payload))
-            self.sendMessage(deviceId, payload)
+            payloadDict = json.loads(payload)  
+            ackDict = {"ack":""}
+            if "mid" in payloadDict:
+                ackDict["ack"] = payloadDict["mid"]
+            ackPayload = json.dumps(ackDict)
+            self.logger.info("Responding to {0} with {1}".format(binascii.hexlify(deviceId), ackPayload))
+            self.sendMessage(deviceId, ackPayload)
         except Exception as e:
             self.logger.exception(e)
             

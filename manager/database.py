@@ -24,7 +24,19 @@ class Database:
                 conn.close()
         except Exception as e:
             self.logger.exception(e)
-            
+ 
+    def log(self, deviceIdHex, protocol, ip, time, text):
+        self.logger.debug("saving log to db: device={0}, protocol={1} ip={2}, time={3}, text={4}".format(deviceIdHex, protocol, ip, time, text))
+        try:
+            with self.lock:
+                conn = sqlite3.connect(self.dbFile)
+                deviceId = self.getDeviceId(conn, deviceIdHex)
+                addressId = self.getAddressId(conn, protocol, ip)
+                self.saveLog(conn, deviceId, addressId, time, text)
+                conn.commit()
+                conn.close()
+        except Exception as e:
+            self.logger.exception(e) 
               
     def saveReading(self, conn, deviceId, sensorId, addressId, time, numberValue):
         c = conn.cursor()
@@ -39,6 +51,19 @@ class Database:
             c.execute("CREATE INDEX idx_readings_addressId ON readings(addressId)")            
         #.strftime('%Y-%m-%d %H:%M:%S')
         c.execute("INSERT INTO readings(time, year, month, day, hour, minute, deviceId, sensorId, addressId, numberValue) VALUES(?,?,?,?,?,?,?,?,?,?)", (time, time.year, time.month, time.day, time.hour, time.minute, deviceId, sensorId, addressId, numberValue))
+        
+    def saveLog(self, conn, deviceId, addressId, time, text):
+        c = conn.cursor()
+        if self.doesTableExist(conn, "logs"):
+            pass
+        else:
+            self.logger.info("Creating table 'logs'")
+            c.execute('CREATE TABLE logs (id INTEGER PRIMARY KEY AUTOINCREMENT, time DATETIME NOT NULL, deviceId INTEGER NOT NULL, addressId INTEGER NOT NULL, text TEXT, FOREIGN KEY(deviceId) REFERENCES devices(id), FOREIGN KEY(addressId) REFERENCES addresses(id))')      
+            c.execute("CREATE INDEX idx_logs_time ON logs(time)")            
+            c.execute("CREATE INDEX idx_logs_deviceId ON logs(deviceId)")
+            c.execute("CREATE INDEX idx_logs_addressId ON logs(addressId)")            
+        #.strftime('%Y-%m-%d %H:%M:%S')
+        c.execute("INSERT INTO logs(time, deviceId, addressId, text) VALUES(?,?,?,?)", (time, deviceId, addressId, text))        
         
     def getChartData(self, sensors, timeFrom, timeTo, aggregation):     
         with self.lock:    
@@ -107,7 +132,21 @@ class Database:
             self.logger.debug("There are {0} time points in period {1} - {2}. {3} empty time points added.".format(timeKeysCount, minTimeStr, maxTimeStr, emptyCount))
             conn.close()
             return chartData
-        
+ 
+    def getLogData(self, deviceId, timeFrom, timeTo):   
+        self.logger.info("getLogData 1")    
+        with self.lock:  
+            conn = sqlite3.connect(self.dbFile)
+            c = conn.cursor()        
+            query = "SELECT time, text FROM logs JOIN devices ON logs.deviceId=devices.id WHERE devices.hex=? AND logs.time>=? AND logs.time<=? ORDER BY time"
+            data = []
+            self.logger.info("getLogData 2")    
+            for row in c.execute(query, (deviceId, timeFrom, timeTo)):           
+                fields = {"time": row[0], "text": row[1] }
+                data.append(fields)
+            self.logger.info("getLogData 3")    
+            return data
+ 
     def getDevicesData(self):
         with self.lock:    
             conn = sqlite3.connect(self.dbFile)

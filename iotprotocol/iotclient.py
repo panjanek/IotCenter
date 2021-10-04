@@ -55,7 +55,7 @@ class IotClientService:
                 try:
                     sock = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
                     self.logger.debug("using caCertFile={0}, deviceCertFile={1}, deviceKeyFile={2}".format(self.caCertFile, self.deviceCertFile, self.deviceKeyFile))
-                    sslSocket = ssl.wrap_socket(sock, ca_certs=self.caCertFile, cert_reqs=ssl.CERT_REQUIRED, certfile=self.deviceCertFile, keyfile=self.deviceKeyFile, ssl_version=ssl.PROTOCOL_TLSv1)     
+                    sslSocket = ssl.wrap_socket(sock, ca_certs=self.caCertFile, cert_reqs=ssl.CERT_REQUIRED, certfile=self.deviceCertFile, keyfile=self.deviceKeyFile, ssl_version=ssl.PROTOCOL_SSLv23)     
                     sslSocket.connect((self.serverAddr.split(':')[0], int(self.serverAddr.split(':')[1])))   
                     servercert = sslSocket.getpeercert()
                     subject = dict(x[0] for x in servercert['subject'])

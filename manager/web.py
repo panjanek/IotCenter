@@ -54,7 +54,7 @@ class WebServer:
         
         self.logger.info("starting web server listening at http {0} (plain)".format(self.httpPort))
         self.httpsApp = tornado.web.Application(application, cookie_secret=os.urandom(32), compiled_template_cache=True)
-        sslOptions={ "certfile": self.httpsCertFile, "keyfile": self.httpsKeyFile, "ssl_version": ssl.PROTOCOL_TLSv1 }
+        sslOptions={ "certfile": self.httpsCertFile, "keyfile": self.httpsKeyFile, "ssl_version": ssl.PROTOCOL_SSLv23 }
         if self.httpsChainFile:
             sslOptions["certfile"] = self.httpsChainFile
         self.logger.info("Using certificate file at {0}".format(sslOptions["certfile"]))

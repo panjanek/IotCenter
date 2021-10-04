@@ -79,7 +79,7 @@ class IotServerService:
                     newsocket, fromaddr = bindsocket.accept()
                     try:
                         self.logger.info("New TCP connection from {0}:{1} - initiating ssl using serverCertFile={2}, serverKeyFile={3}, caCertFile={4}".format(fromaddr[0], fromaddr[1], self.serverCertFile, self.serverKeyFile, self.caCertFile))
-                        sslSocket = ssl.wrap_socket(newsocket, server_side=True,certfile=self.serverCertFile, keyfile=self.serverKeyFile,cert_reqs=ssl.CERT_REQUIRED,ca_certs=self.caCertFile,ssl_version=ssl.PROTOCOL_TLSv1)
+                        sslSocket = ssl.wrap_socket(newsocket, server_side=True,certfile=self.serverCertFile, keyfile=self.serverKeyFile,cert_reqs=ssl.CERT_REQUIRED,ca_certs=self.caCertFile,ssl_version=ssl.PROTOCOL_SSLv23)
                         sslSocket.settimeout(300)
                         servercert = sslSocket.getpeercert()
                         subject = dict(x[0] for x in servercert['subject'])
